@@ -1,0 +1,22 @@
+hmz_metaco_container_registry_user     = ""
+hmz_metaco_container_registry_password = ""
+hmz_kms_oci_tag                        = "1.1.6"
+hmz_notary_oci_tag                     = "1.9.22"
+hmz_vault_oci_tag                      = "1.19.15"
+
+# Notary Environment Variables
+hmz_notary_enabled              = true
+hmz_notary_bridge_http_endpoint = "https://..."
+
+# Vault Environment Variables 
+hmz_vault_harmonize_core_endpoint = "https://..."
+hmz_vault_trusted_sig             = ""
+
+vaults = [
+  {
+    hmz_vault_id                     = "00000000-0000-0000-0000-000000000000",
+    hmz_vault_log_level              = 6
+    hmz_vault_bridge_log_level       = 6
+    hmz_vault_feature_otlp_in_stdout = false
+  },
+]

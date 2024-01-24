@@ -1,0 +1,37 @@
+repos:
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: shfmt
+        args: ['-l', '-i', '2', '-ci', '-sr', '-w']
+  - repo: https://github.com/koalaman/shellcheck-precommit.git
+    rev: 'v0.7.1'
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/terraform-docs/terraform-docs
+    rev: 'v0.16.0'
+    hooks:
+      - id: terraform-docs-go
+        args: ['markdown', '--output-file', 'README.md', '--recursive', './']
+
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: TruffleHog
+        description: Detect secrets in your data.
+        entry: bash -c 'trufflehog git file://. --since-commit HEAD --only-verified --fail --no-update'
+        language: system
+        stages: ['commit', 'push']
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.32.2
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+
+  - repo: https://github.com/bridgecrewio/checkov.git
+    rev: '3.0.34'
+    hooks:
+      - id: checkov
+        language_version: python3.11
