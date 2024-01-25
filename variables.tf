@@ -60,6 +60,10 @@ variable "aws_subnet_id" {
   type        = string
 }
 
+variable "aws_security_group_id" {
+  description = "AWS Security Group"
+}
+
 variable "aws_cloud_watch_logs_group" {
   description = "AWS CloudWatch Logs Group"
   type        = string

@@ -49,7 +49,6 @@ resource "random_pet" "random_name" {
   separator = "-"
 }
 
-
 data "aws_vpc" "aws_vpc_hmz_trusted_components" {
   id = var.aws_vpc_id
 }
@@ -82,7 +81,6 @@ resource "aws_secretsmanager_secret_version" "hmz_kms_oci_registry_credentials" 
   })
 }
 
-
 resource "aws_iam_role" "ecs_execution_role" {
   name = "${local.pet_name}-ecs-execution-role-for-hmz-notary"
 
@@ -103,6 +101,33 @@ resource "aws_iam_role" "ecs_execution_role" {
 resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   role       = aws_iam_role.ecs_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_policy" "ecs_secrets_policy" {
+  name        = "${local.pet_name}-ecs-secrets-policy-for-notary"
+  description = "ECS policy to access Secrets Manager"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ],
+        Effect = "Allow",
+        Resource = [
+          aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn,
+          aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.arn
+        ]
+      }
+    ],
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_secrets_policy_attachment" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = aws_iam_policy.ecs_secrets_policy.arn
 }
 
 resource "aws_security_group" "efs_sg" {
@@ -142,44 +167,41 @@ resource "aws_efs_mount_target" "hmz_notary_anti_rewind_file_efs_mt" {
   security_groups = [aws_security_group.efs_sg.id]
 }
 
-
-
 resource "aws_ecs_task_definition" "task" {
   family                   = "${local.pet_name}-hmz-notary-ecs-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = "4096"
+  memory                   = "8192"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = var.aws_iam_role_ecs_task_role_arn
 
-  volume {
-    name = "${local.pet_name}-hmz-notary-anti-rewind-file-volume"
+  # volume {
+  #   name = "${local.pet_name}-hmz-notary-anti-rewind-file-volume"
 
-    efs_volume_configuration {
-      file_system_id     = aws_efs_file_system.hmz_notary_anti_rewind_file_efs.id
-      root_directory     = "/"
-      transit_encryption = "ENABLED"
-    }
-  }
+  #   efs_volume_configuration {
+  #     file_system_id     = aws_efs_file_system.hmz_notary_anti_rewind_file_efs.id
+  #     root_directory     = "/"
+  #     transit_encryption = "ENABLED"
+  #   }
+  # }
 
-  volume {
-    name = "${local.pet_name}-hmz-notary-tmp-folder-volume"
+  # volume {
+  #   name = "${local.pet_name}-hmz-notary-tmp-folder-volume"
 
-    efs_volume_configuration {
-      file_system_id     = aws_efs_file_system.hmz_notary_tmp_folder_efs.id
-      root_directory     = "/"
-      transit_encryption = "ENABLED"
-    }
-  }
-
+  #   efs_volume_configuration {
+  #     file_system_id     = aws_efs_file_system.hmz_notary_tmp_folder_efs.id
+  #     root_directory     = "/"
+  #     transit_encryption = "ENABLED"
+  #   }
+  # }
 
   container_definitions = jsonencode([
     {
       name      = "${local.pet_name}-hmz-notary-container"
       image     = "${var.hmz_notary_oci_image}:${var.hmz_notary_oci_tag}"
-      cpu       = 128
-      memory    = 256
+      cpu       = 2048
+      memory    = 4096
       essential = true
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.arn
@@ -196,25 +218,25 @@ resource "aws_ecs_task_definition" "task" {
           hostPort      = 80
         }
       ]
-      mountPoints = [
-        {
-          sourceVolume  = "${local.pet_name}-hmz-notary-anti-rewind-file-volume"
-          containerPath = "/data/anti-rewind"
-          readOnly      = false
-        },
-        {
-          sourceVolume  = "${local.pet_name}-hmz-notary-tmp-folder-volume"
-          containerPath = "/tmp"
-          readOnly      = false
-        }
-      ]
+      # mountPoints = [
+      #   {
+      #     sourceVolume  = "${local.pet_name}-hmz-notary-anti-rewind-file-volume"
+      #     containerPath = "/data/anti-rewind"
+      #     readOnly      = false
+      #   },
+      #   {
+      #     sourceVolume  = "${local.pet_name}-hmz-notary-tmp-folder-volume"
+      #     containerPath = "/tmp"
+      #     readOnly      = false
+      #   }
+      # ]
       logConfiguration = local.log_config
     },
     {
       name      = "${local.pet_name}-hmz-kms-connect-for-notary"
       image     = "${var.hmz_kms_oci_image}:${var.hmz_kms_oci_tag}"
-      cpu       = 128
-      memory    = 256
+      cpu       = 2048
+      memory    = 4096
       essential = true
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn

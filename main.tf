@@ -24,6 +24,10 @@ data "aws_subnet" "hmz_trusted_components_subnet" {
   id = var.aws_subnet_id
 }
 
+data "aws_security_group" "hmz_trusted_components_sg" {
+  id = var.aws_security_group_id
+}
+
 resource "aws_security_group" "ecs_https_egress" {
   name        = "ecs_https_egress_sg"
   description = "Security group for ECS container to allow outbound HTTPS traffic"
@@ -31,10 +35,16 @@ resource "aws_security_group" "ecs_https_egress" {
 
   # Allow outbound HTTPS traffic on port 443
   egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"          # -1 means all protocols
+    cidr_blocks = ["0.0.0.0/0"] # 0.0.0.0/0 represents all IP addresses
+  }
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"          # -1 means all protocols
+    cidr_blocks = ["0.0.0.0/0"] # 0.0.0.0/0 represents all IP addresses
   }
 
   tags = {
@@ -128,18 +138,10 @@ resource "aws_ecs_service" "hmz_notary_ecs_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [var.aws_subnet_id]
+    subnets = [var.aws_subnet_id]
+    # security_groups = [data.aws_security_group.hmz_trusted_components_sg.id, aws_security_group.ecs_https_egress.id]
     security_groups = [aws_security_group.ecs_https_egress.id]
   }
-
-  # service_connect_configuration {
-  # enabled = true
-  #   # namespace = ""
-  #   log_configuration {
-  #     log_driver = "awslogs"
-  #   }
-  # }
-
 }
 
 module "vault" {
@@ -199,16 +201,8 @@ resource "aws_ecs_service" "hmz_vault_ecs_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [var.aws_subnet_id]
+    subnets = [var.aws_subnet_id]
+    # security_groups = [data.aws_security_group.hmz_trusted_components_sg.id, aws_security_group.ecs_https_egress.id]
     security_groups = [aws_security_group.ecs_https_egress.id]
   }
-
-  # service_connect_configuration {
-  #   enabled = true
-  #   # namespace = ""
-  #   log_configuration {
-  #     log_driver = "awslogs"
-  #   }
-  # }
-
 }

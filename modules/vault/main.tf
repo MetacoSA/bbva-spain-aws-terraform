@@ -24,6 +24,11 @@ locals {
     KMS_SOFT_MASTER = var.hmz_kms_software_master_key
   }
 
+  aws_ecs_task_container_registry_credentials = {
+    username = var.hmz_kms_container_registry_user,
+    password = var.hmz_kms_container_registry_password
+  }
+
   # log_config = length(var.aws_cloud_watch_logs_group) > 0 && length(var.aws_cloud_watch_logs_region) > 0 ? {
   #   logDriver = "awslogs"
   #   options = {
@@ -103,12 +108,39 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_policy" "ecs_secrets_policy" {
+  name        = "${local.pet_name}-ecs-secrets-policy-for-vault"
+  description = "ECS policy to access Secrets Manager"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ],
+        Effect = "Allow",
+        Resource = [
+          aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn,
+          aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
+        ]
+      }
+    ],
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_secrets_policy_attachment" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = aws_iam_policy.ecs_secrets_policy.arn
+}
+
 resource "aws_ecs_task_definition" "task" {
-  family                   = "${local.pet_name}-hmz-notary-ecs-task"
+  family                   = "${local.pet_name}-hmz-vault-ecs-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = "4096"
+  memory                   = "8192"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = var.aws_iam_role_ecs_task_role_arn
 
@@ -117,8 +149,8 @@ resource "aws_ecs_task_definition" "task" {
     {
       name      = "${local.pet_name}-hmz-vault-${var.hmz_vault_id}"
       image     = "${var.hmz_vault_oci_image}:${var.hmz_vault_oci_tag}"
-      cpu       = 128
-      memory    = 256
+      cpu       = 2048
+      memory    = 4096
       essential = true
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
@@ -135,21 +167,13 @@ resource "aws_ecs_task_definition" "task" {
           hostPort      = 80
         }
       ]
-      # logConfiguration = local.log_config
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = "/dev/ecs/hmz-trusted-components/bbva-spain"
-          awslogs-region        = "eu-north-1"
-          awslogs-stream-prefix = "ecs"
-        }
-      }
+      logConfiguration = local.log_config
     },
     {
       name      = "${local.pet_name}-hmz-kms-connect-for-vault-${var.hmz_vault_id}"
       image     = "${var.hmz_kms_oci_image}:${var.hmz_kms_oci_tag}"
-      cpu       = 128
-      memory    = 256
+      cpu       = 2048
+      memory    = 4096
       essential = true
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn

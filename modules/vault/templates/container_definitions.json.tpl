@@ -2,8 +2,8 @@
   {
     "name": "vault",
     "image": "${hmz_vault_oci_image}:${hmz_vault_oci_tag}",
-    "cpu": 128,
-    "memory": 256,
+    "cpu": 2048,
+    "memory": 4096,
     "essential": true,
     "repositoryCredentials": {
       credentialsParameter:
@@ -31,8 +31,8 @@
   {
     "name": "kms",
     "image": "${hmz_kms_oci_image}:${hmz_kms_oci_tag}",
-    "cpu": 128,
-    "memory": 256,
+    "cpu": 2048,
+    "memory": 4096,
     "essential": true,
     "entryPoint": ["/bin/sh", "-c"]
     "command": [
