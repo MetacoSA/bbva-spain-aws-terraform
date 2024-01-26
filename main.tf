@@ -7,8 +7,123 @@ terraform {
   }
 }
 
+
+
 provider "aws" {
   region = var.aws_region
+}
+
+locals {
+
+}
+
+module "vpc" {
+  source = "./modules/vpc"
+}
+
+# resource "aws_vpc" "vpc_main" {
+#   cidr_block           = "10.0.0.0/16"
+#   enable_dns_hostnames = true
+#   enable_dns_support   = true
+# }
+
+# # Public Subnet
+# resource "aws_subnet" "subnet_public" {
+#   vpc_id                  = aws_vpc.vpc_main.id
+#   cidr_block              = "10.0.0.0/24"
+#   map_public_ip_on_launch = true
+# }
+
+# resource "aws_subnet" "subnet_private" {
+#   vpc_id                  = aws_vpc.vpc_main.id
+#   cidr_block              = "10.0.1.0/24"
+#   map_public_ip_on_launch = true
+# }
+
+# # Internet Gateway
+# resource "aws_internet_gateway" "igw" {
+#   vpc_id = aws_vpc.vpc_main.id
+# }
+
+# # NAT Gateway
+# resource "aws_eip" "eip_nat_gw" {
+# }
+
+# resource "aws_nat_gateway" "nat_gw" {
+#   allocation_id = aws_eip.eip_nat_gw.id
+#   subnet_id     = aws_subnet.subnet_public.id
+# }
+
+# # Public Route Table
+# resource "aws_route_table" "route_table_public" {
+#   vpc_id = aws_vpc.vpc_main.id
+
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     gateway_id = aws_internet_gateway.igw.id
+#   }
+# }
+
+# # Private Route Table
+# resource "aws_route_table" "route_table_private" {
+#   vpc_id = aws_vpc.vpc_main.id
+
+#   route {
+#     cidr_block     = "0.0.0.0/0"
+#     nat_gateway_id = aws_nat_gateway.nat_gw.id
+#   }
+# }
+
+# # Associate Route Tables with Subnets
+# resource "aws_route_table_association" "public_association" {
+#   subnet_id      = aws_subnet.subnet_public.id
+#   route_table_id = aws_route_table.route_table_public.id
+# }
+
+# resource "aws_route_table_association" "private_association" {
+#   subnet_id      = aws_subnet.subnet_private.id
+#   route_table_id = aws_route_table.route_table_private.id
+# }
+
+# Security Group for Bastion Host
+resource "aws_security_group" "bastion_sg" {
+  name   = "bastion_sg"
+  vpc_id = module.vpc.vpc_id
+
+  # Allow SSH access
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow egress traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "private_sg" {
+  name   = "private_sg"
+  vpc_id = module.vpc.vpc_id
+
+  ingress {
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "random_pet" "random_name" {
@@ -17,11 +132,15 @@ resource "random_pet" "random_name" {
 }
 
 data "aws_vpc" "aws_vpc_hmz_trusted_components" {
-  id = var.aws_vpc_id
+  # id = var.aws_vpc_id
+  # id = aws_vpc.vpc_main.id
+  id = module.vpc.vpc_id
 }
 
 data "aws_subnet" "hmz_trusted_components_subnet" {
-  id = var.aws_subnet_id
+  # id = var.aws_subnet_id
+  # id = aws_subnet.subnet_public.id
+  id = module.vpc.private_subnet_id
 }
 
 data "aws_security_group" "hmz_trusted_components_sg" {
@@ -31,21 +150,23 @@ data "aws_security_group" "hmz_trusted_components_sg" {
 resource "aws_security_group" "ecs_https_egress" {
   name        = "ecs_https_egress_sg"
   description = "Security group for ECS container to allow outbound HTTPS traffic"
-  vpc_id      = var.aws_vpc_id
+  vpc_id      = data.aws_vpc.aws_vpc_hmz_trusted_components.id
 
   # Allow outbound HTTPS traffic on port 443
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"          # -1 means all protocols
-    cidr_blocks = ["0.0.0.0/0"] # 0.0.0.0/0 represents all IP addresses
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"          # -1 means all protocols
+    cidr_blocks      = ["0.0.0.0/0"] # 0.0.0.0/0 represents all IP addresses
+    ipv6_cidr_blocks = ["::/0"]
   }
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"          # -1 means all protocols
-    cidr_blocks = ["0.0.0.0/0"] # 0.0.0.0/0 represents all IP addresses
-  }
+  # ingress {
+  #   from_port        = 0
+  #   to_port          = 0
+  #   protocol         = "-1"          # -1 means all protocols
+  #   cidr_blocks      = ["0.0.0.0/0"] # 0.0.0.0/0 represents all IP addresses
+  #   ipv6_cidr_blocks = ["::/0"]
+  # }
 
   tags = {
     Name = "ECS HTTPS Egress"
@@ -92,13 +213,14 @@ module "notary" {
 
   # AWS Config
   # aws_subnet_ids                 = [data.aws_subnet.hmz_trusted_components_subnet.id]
-  aws_iam_role_ecs_task_role_arn = aws_iam_role.ecs_task_role_for_hmz_trusted_components.arn
-  aws_vpc_id                     = data.aws_vpc.aws_vpc_hmz_trusted_components.id
-  aws_vpc_cidr                   = data.aws_vpc.aws_vpc_hmz_trusted_components.cidr_block
-  aws_subnet_id                  = data.aws_subnet.hmz_trusted_components_subnet.id
-  aws_cloud_watch_logs_group     = var.aws_cloud_watch_logs_group
-  aws_cloud_watch_logs_region    = var.aws_cloud_watch_logs_region
-  aws_resource_tags              = {}
+  aws_iam_role_ecs_task_role_arn     = aws_iam_role.ecs_task_role_for_hmz_trusted_components.arn
+  aws_vpc_id                         = data.aws_vpc.aws_vpc_hmz_trusted_components.id
+  aws_vpc_cidr                       = data.aws_vpc.aws_vpc_hmz_trusted_components.cidr_block
+  aws_subnet_id                      = data.aws_subnet.hmz_trusted_components_subnet.id
+  aws_cloud_watch_logs_group         = var.aws_cloud_watch_logs_group
+  aws_cloud_watch_logs_stream_prefix = var.aws_cloud_watch_logs_stream_prefix
+  aws_cloud_watch_logs_region        = var.aws_cloud_watch_logs_region
+  aws_resource_tags                  = {}
 
   hmz_kms_oci_image                   = var.hmz_kms_oci_image
   hmz_kms_oci_tag                     = var.hmz_kms_oci_tag
@@ -138,8 +260,14 @@ resource "aws_ecs_service" "hmz_notary_ecs_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets = [var.aws_subnet_id]
+    # subnets = [var.aws_subnet_id]
     # security_groups = [data.aws_security_group.hmz_trusted_components_sg.id, aws_security_group.ecs_https_egress.id]
+    # security_groups = [aws_security_group.ecs_https_egress.id]
+
+    # subnets         = [aws_subnet.subnet_private.id]
+    # security_groups = [aws_security_group.bastion_sg.id]
+
+    subnets         = [module.vpc.private_subnet_id]
     security_groups = [aws_security_group.ecs_https_egress.id]
   }
 }
@@ -155,13 +283,14 @@ module "vault" {
   random_pet = random_pet.random_name.id
 
   # AWS Config
-  aws_iam_role_ecs_task_role_arn = aws_iam_role.ecs_task_role_for_hmz_trusted_components.arn
-  aws_vpc_id                     = data.aws_vpc.aws_vpc_hmz_trusted_components.id
-  aws_vpc_cidr                   = data.aws_vpc.aws_vpc_hmz_trusted_components.cidr_block
-  aws_subnet_id                  = data.aws_subnet.hmz_trusted_components_subnet.id
-  aws_cloud_watch_logs_group     = var.aws_cloud_watch_logs_group
-  aws_cloud_watch_logs_region    = var.aws_cloud_watch_logs_region
-  aws_resource_tags              = {}
+  aws_iam_role_ecs_task_role_arn     = aws_iam_role.ecs_task_role_for_hmz_trusted_components.arn
+  aws_vpc_id                         = data.aws_vpc.aws_vpc_hmz_trusted_components.id
+  aws_vpc_cidr                       = data.aws_vpc.aws_vpc_hmz_trusted_components.cidr_block
+  aws_subnet_id                      = data.aws_subnet.hmz_trusted_components_subnet.id
+  aws_cloud_watch_logs_group         = var.aws_cloud_watch_logs_group
+  aws_cloud_watch_logs_stream_prefix = var.aws_cloud_watch_logs_stream_prefix
+  aws_cloud_watch_logs_region        = var.aws_cloud_watch_logs_region
+  aws_resource_tags                  = {}
 
   hmz_kms_oci_image                   = var.hmz_kms_oci_image
   hmz_kms_oci_tag                     = var.hmz_kms_oci_tag
@@ -201,8 +330,14 @@ resource "aws_ecs_service" "hmz_vault_ecs_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets = [var.aws_subnet_id]
+    # subnets = [var.aws_subnet_id]
     # security_groups = [data.aws_security_group.hmz_trusted_components_sg.id, aws_security_group.ecs_https_egress.id]
+    # security_groups = [aws_security_group.ecs_https_egress.id]
+
+    # subnets         = [aws_subnet.subnet_private.id]
+    # security_groups = [aws_security_group.bastion_sg.id]
+
+    subnets         = [module.vpc.private_subnet_id]
     security_groups = [aws_security_group.ecs_https_egress.id]
   }
 }

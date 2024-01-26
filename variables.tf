@@ -64,14 +64,21 @@ variable "aws_security_group_id" {
   description = "AWS Security Group"
 }
 
+
+variable "aws_cloud_watch_logs_region" {
+  description = "AWS CloudWatch Logs Region"
+  type        = string
+  default     = ""
+}
+
 variable "aws_cloud_watch_logs_group" {
   description = "AWS CloudWatch Logs Group"
   type        = string
   default     = ""
 }
 
-variable "aws_cloud_watch_logs_region" {
-  description = "AWS CloudWatch Logs Region"
+variable "aws_cloud_watch_logs_stream_prefix" {
+  description = "AWS CloudWatch Logs Stream Prefix"
   type        = string
   default     = ""
 }

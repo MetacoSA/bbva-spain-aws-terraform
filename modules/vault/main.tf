@@ -16,6 +16,7 @@ locals {
     VAULT_ID    = var.hmz_vault_id
 
     # HMZ Vault 
+    PLATFORM           = "kms"
     VAULT_KMS_ENDPOINT = "localhost:10000"
     VAULT_CORE_ADDRESS = "localhost:10054"
   }
@@ -29,23 +30,14 @@ locals {
     password = var.hmz_kms_container_registry_password
   }
 
-  # log_config = length(var.aws_cloud_watch_logs_group) > 0 && length(var.aws_cloud_watch_logs_region) > 0 ? {
-  #   logDriver = "awslogs"
-  #   options = {
-  #     awslogs-group         = var.aws_cloud_watch_logs_group
-  #     awslogs-region        = var.aws_cloud_watch_logs_region
-  #     awslogs-stream-prefix = "ecs"
-  #   }
-  # } : null
-
-  log_config = {
+  log_config = length(var.aws_cloud_watch_logs_group) > 0 && length(var.aws_cloud_watch_logs_region) > 0 && length(var.aws_cloud_watch_logs_stream_prefix) > 0 ? {
     logDriver = "awslogs"
     options = {
       awslogs-group         = var.aws_cloud_watch_logs_group
       awslogs-region        = var.aws_cloud_watch_logs_region
-      awslogs-stream-prefix = "ecs"
+      awslogs-stream-prefix = var.aws_cloud_watch_logs_stream_prefix
     }
-  }
+  } : null
 }
 
 resource "random_pet" "random_name" {
@@ -122,9 +114,10 @@ resource "aws_iam_policy" "ecs_secrets_policy" {
         ],
         Effect = "Allow",
         Resource = [
-          aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn,
-          aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
+          aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn,
+          aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
         ]
+
       }
     ],
   })
@@ -144,7 +137,6 @@ resource "aws_ecs_task_definition" "task" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = var.aws_iam_role_ecs_task_role_arn
 
-
   container_definitions = jsonencode([
     {
       name      = "${local.pet_name}-hmz-vault-${var.hmz_vault_id}"
@@ -153,7 +145,7 @@ resource "aws_ecs_task_definition" "task" {
       memory    = 4096
       essential = true
       repositoryCredentials = {
-        credentialsParameter = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
+        credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
       }
       environment = [
         for key, value in local.hmz_vault_environment_variables : {
@@ -178,6 +170,7 @@ resource "aws_ecs_task_definition" "task" {
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
       }
+      user       = "root"
       entryPoint = ["/bin/sh", "-c"]
       command = [
         "mkdir -p /opt/kms/cfg && echo 'master = [${local.hmz_kms_environment_variables["KMS_SOFT_MASTER"]}]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"

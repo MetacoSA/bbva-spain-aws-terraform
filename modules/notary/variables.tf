@@ -39,16 +39,22 @@ variable "aws_iam_role_ecs_task_role_arn" {
   }
 }
 
-variable "aws_cloud_watch_logs_group" {
-  description = "AWS CloudWatch Logs Group"
-  type        = string
-  # default     = ""
-}
-
 variable "aws_cloud_watch_logs_region" {
   description = "AWS CloudWatch Logs Region"
   type        = string
-  # default     = ""
+  default     = ""
+}
+
+variable "aws_cloud_watch_logs_group" {
+  description = "AWS CloudWatch Logs Group"
+  type        = string
+  default     = ""
+}
+
+variable "aws_cloud_watch_logs_stream_prefix" {
+  description = "AWS CloudWatch Logs Stream Prefix"
+  type        = string
+  default     = ""
 }
 
 variable "aws_resource_tags" {

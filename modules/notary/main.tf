@@ -13,6 +13,7 @@ locals {
     HMZ_NOTARY_COLS_DIR                     = var.hmz_notary_cols_dir
     HMZ_NOTARY_KMS_GRPC_KEEP_ALIVE_INTERVAL = var.hmz_notary_kms_grpc_keep_alive_interval
     HMZ_NOTARY_KMS_GRPC_KEEP_ALIVE_TIMEOUT  = var.hmz_notary_kms_grpc_keep_alive_timeout
+    HMZ_NOTARY_KMS_ENABLED                  = true
     HMZ_NOTARY_KMS_HOST                     = "localhost"
     HMZ_NOTARY_KMS_PORT                     = 10000
     },
@@ -25,23 +26,14 @@ locals {
     KMS_SOFT_MASTER = var.hmz_kms_software_master_key
   }
 
-  # log_config = length(var.aws_cloud_watch_logs_group) > 0 && length(var.aws_cloud_watch_logs_region) > 0 ? {
-  #   logDriver = "awslogs"
-  #   options = {
-  #     awslogs-group         = var.aws_cloud_watch_logs_group
-  #     awslogs-region        = var.aws_cloud_watch_logs_region
-  #     awslogs-stream-prefix = "ecs"
-  #   }
-  # } : null
-
-  log_config = {
+  log_config = length(var.aws_cloud_watch_logs_group) > 0 && length(var.aws_cloud_watch_logs_region) > 0 && length(var.aws_cloud_watch_logs_stream_prefix) > 0 ? {
     logDriver = "awslogs"
     options = {
       awslogs-group         = var.aws_cloud_watch_logs_group
       awslogs-region        = var.aws_cloud_watch_logs_region
-      awslogs-stream-prefix = "ecs"
+      awslogs-stream-prefix = var.aws_cloud_watch_logs_stream_prefix
     }
-  }
+  } : null
 }
 
 resource "random_pet" "random_name" {
@@ -176,25 +168,25 @@ resource "aws_ecs_task_definition" "task" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = var.aws_iam_role_ecs_task_role_arn
 
-  # volume {
-  #   name = "${local.pet_name}-hmz-notary-anti-rewind-file-volume"
+  volume {
+    name = "${local.pet_name}-hmz-notary-anti-rewind-file-volume"
 
-  #   efs_volume_configuration {
-  #     file_system_id     = aws_efs_file_system.hmz_notary_anti_rewind_file_efs.id
-  #     root_directory     = "/"
-  #     transit_encryption = "ENABLED"
-  #   }
-  # }
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.hmz_notary_anti_rewind_file_efs.id
+      root_directory     = "/"
+      transit_encryption = "ENABLED"
+    }
+  }
 
-  # volume {
-  #   name = "${local.pet_name}-hmz-notary-tmp-folder-volume"
+  volume {
+    name = "${local.pet_name}-hmz-notary-tmp-folder-volume"
 
-  #   efs_volume_configuration {
-  #     file_system_id     = aws_efs_file_system.hmz_notary_tmp_folder_efs.id
-  #     root_directory     = "/"
-  #     transit_encryption = "ENABLED"
-  #   }
-  # }
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.hmz_notary_tmp_folder_efs.id
+      root_directory     = "/"
+      transit_encryption = "ENABLED"
+    }
+  }
 
   container_definitions = jsonencode([
     {
@@ -218,18 +210,18 @@ resource "aws_ecs_task_definition" "task" {
           hostPort      = 80
         }
       ]
-      # mountPoints = [
-      #   {
-      #     sourceVolume  = "${local.pet_name}-hmz-notary-anti-rewind-file-volume"
-      #     containerPath = "/data/anti-rewind"
-      #     readOnly      = false
-      #   },
-      #   {
-      #     sourceVolume  = "${local.pet_name}-hmz-notary-tmp-folder-volume"
-      #     containerPath = "/tmp"
-      #     readOnly      = false
-      #   }
-      # ]
+      mountPoints = [
+        {
+          sourceVolume  = "${local.pet_name}-hmz-notary-anti-rewind-file-volume"
+          containerPath = "/data/anti-rewind"
+          readOnly      = false
+        },
+        {
+          sourceVolume  = "${local.pet_name}-hmz-notary-tmp-folder-volume"
+          containerPath = "/tmp"
+          readOnly      = false
+        }
+      ]
       logConfiguration = local.log_config
     },
     {
@@ -241,6 +233,7 @@ resource "aws_ecs_task_definition" "task" {
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
       }
+      user       = "root"
       entryPoint = ["/bin/sh", "-c"]
       command = [
         "mkdir -p /opt/kms/cfg && echo 'master = [${local.hmz_kms_environment_variables["KMS_SOFT_MASTER"]}]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"
