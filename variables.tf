@@ -89,14 +89,14 @@ variable "hmz_notary_enabled" {
   description = "Set this flag to true to enable Notary instance deployment."
 }
 
-variable "hmz_kms_software_master_key" {
+variable "hmz_kms_connect_software_master_key" {
   type        = string
   sensitive   = true
   default     = ""
-  description = "Software KMS Master Key. (Environment Variable KMS_SOFT_MASTER, e.g. KMS_SOFT_MASTER='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff')"
+  description = "Software KMS Master Key. (Environment Variable HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY, e.g. HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff')"
 
   validation {
-    condition     = var.hmz_kms_software_master_key == "" || can(regex("^[0-9a-fA-F]+$", var.hmz_kms_software_master_key))
+    condition     = var.hmz_kms_connect_software_master_key == "" || can(regex("^[0-9a-fA-F]+$", var.hmz_kms_connect_software_master_key))
     error_message = "The kms_soft_master value must be a hexadecimal string."
   }
 }
@@ -335,10 +335,10 @@ variable "hmz_notary_state_manifest_file_path" {
   description = "Path to manifest.json file that contains the Anti-Rewind state manifest"
 }
 
-variable "hmz_notary_state_manifest_signature_file_path" {
+variable "hmz_notary_state_manifest_signature" {
   type        = string
-  default     = "manifest-signature"
-  description = "Path to manifest-signature file that contains the Anti-Rewind state manifest signature"
+  default     = ""
+  description = "HMZ Notary Anti-Rewind state manifest signature (Disaster Recovery Procedure)"
 }
 
 
@@ -351,6 +351,7 @@ variable "vaults" {
     hmz_vault_log_level              = number
     hmz_vault_bridge_log_level       = number
     hmz_vault_feature_otlp_in_stdout = bool
+    hmz_vault_optional_maximum_fee   = bool
   }))
 
   default     = []
@@ -394,7 +395,7 @@ variable "hmz_vault_harmonize_core_endpoint" {
 variable "hmz_vault_trusted_sig" {
   type        = string
   default     = ""
-  description = "System (Notary) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable TRUSTED_SIG, without the 'pem:' at the beginning)."
+  description = "System (Notary) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ_VAULT_TRUSTED_SIG, without the 'pem:' at the beginning)."
 
   validation {
     error_message = "Value must be empty or it must be a base64 encoded public key. Omit the the 'pem:' prefix"

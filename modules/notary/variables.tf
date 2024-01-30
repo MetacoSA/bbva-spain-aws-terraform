@@ -10,6 +10,10 @@ variable "random_pet" {
 variable "aws_vpc_id" {
   description = "AWS VPC ID"
   type        = string
+  validation {
+    condition     = can(regex("^vpc-[a-fA-F0-9]{17}$", var.aws_vpc_id))
+    error_message = "The AWS VPC ID must be in the format 'vpc-xxxxxxxxxxxxxxxxx'."
+  }
 }
 
 variable "aws_vpc_cidr" {
@@ -25,6 +29,10 @@ variable "aws_vpc_cidr" {
 variable "aws_subnet_id" {
   description = "AWS Subnet ID"
   type        = string
+  validation {
+    condition     = can(regex("^subnet-[a-fA-F0-9]{17}$", var.aws_subnet_id))
+    error_message = "The AWS subnet ID must be in the format 'subnet-xxxxxxxxxxxxxxxxx'."
+  }
 }
 
 variable "aws_iam_role_ecs_task_role_arn" {
@@ -54,7 +62,7 @@ variable "aws_cloud_watch_logs_group" {
 variable "aws_cloud_watch_logs_stream_prefix" {
   description = "AWS CloudWatch Logs Stream Prefix"
   type        = string
-  default     = ""
+  default     = "hmz-trusted-components"
 }
 
 variable "aws_resource_tags" {
@@ -160,13 +168,13 @@ variable "hmz_notary_container_registry_password" {
 
 # HMZ KMS Environment Variables
 
-variable "hmz_kms_software_master_key" {
+variable "hmz_kms_connect_software_master_key" {
   type        = string
   sensitive   = true
-  description = "Software KMS Master Key. (Environment Variable KMS_SOFT_MASTER, e.g. KMS_SOFT_MASTER='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff')"
+  description = "Software KMS Master Key. (Environment Variable HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY, e.g. HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff')"
 
   validation {
-    condition     = var.hmz_kms_software_master_key == "" || can(regex("^[0-9a-fA-F]+$", var.hmz_kms_software_master_key))
+    condition     = var.hmz_kms_connect_software_master_key == "" || can(regex("^[0-9a-fA-F]+$", var.hmz_kms_connect_software_master_key))
     error_message = "The Software KMS Master Key value must be a hexadecimal string."
   }
 }
@@ -270,8 +278,9 @@ variable "hmz_notary_state_manifest_file_path" {
   description = "Path to manifest.json file that contains the Anti-Rewind state manifest"
 }
 
-variable "hmz_notary_state_manifest_signature_file_path" {
+variable "hmz_notary_state_manifest_signature" {
   type        = string
-  default     = "manifest-signature"
-  description = "Path to manifest-signature file that contains the Anti-Rewind state manifest signature"
+  default     = ""
+  description = "HMZ Notary Anti-Rewind state manifest signature (Disaster Recovery Procedure)"
 }
+

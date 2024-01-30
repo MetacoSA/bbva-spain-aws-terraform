@@ -19,11 +19,11 @@ locals {
     },
 
     fileexists(var.hmz_notary_state_manifest_file_path) ? { ANTI_REWIND_RECOVERY_STATE_MANIFEST = file(var.hmz_notary_state_manifest_file_path) } : {},
-    fileexists(var.hmz_notary_state_manifest_signature_file_path) ? { ANTI_REWIND_RECOVERY_STATE_MANIFEST_SIGNATURE = file(var.hmz_notary_state_manifest_signature_file_path) } : {}
+    length(var.hmz_notary_state_manifest_signature) > 0 ? { ANTI_REWIND_RECOVERY_STATE_MANIFEST_SIGNATURE = var.hmz_notary_state_manifest_signature } : {}
   )
 
   hmz_kms_environment_variables = {
-    KMS_SOFT_MASTER = var.hmz_kms_software_master_key
+    HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY = var.hmz_kms_connect_software_master_key
   }
 
   log_config = length(var.aws_cloud_watch_logs_group) > 0 && length(var.aws_cloud_watch_logs_region) > 0 && length(var.aws_cloud_watch_logs_stream_prefix) > 0 ? {
@@ -151,7 +151,15 @@ resource "aws_efs_file_system" "hmz_notary_tmp_folder_efs" {
 }
 
 resource "aws_efs_mount_target" "hmz_notary_anti_rewind_file_efs_mt" {
-  # for_each       = toset(var.aws_subnet_ids)
+  # file_system_id = aws_efs_file_system.hmz_notary_tmp_folder_efs.id
+  file_system_id = aws_efs_file_system.hmz_notary_anti_rewind_file_efs.id
+  subnet_id      = data.aws_subnet.hmz_trusted_components_subnet.id
+
+  # Use the security group that allows NFS traffic
+  security_groups = [aws_security_group.efs_sg.id]
+}
+
+resource "aws_efs_mount_target" "hmz_notary_tmp_efs_mt" {
   file_system_id = aws_efs_file_system.hmz_notary_tmp_folder_efs.id
   subnet_id      = data.aws_subnet.hmz_trusted_components_subnet.id
 
@@ -198,6 +206,7 @@ resource "aws_ecs_task_definition" "task" {
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.arn
       }
+      user = "root"
       environment = [
         for key, value in local.hmz_notary_environment_variables : {
           name  = key
@@ -236,7 +245,7 @@ resource "aws_ecs_task_definition" "task" {
       user       = "root"
       entryPoint = ["/bin/sh", "-c"]
       command = [
-        "mkdir -p /opt/kms/cfg && echo 'master = [${local.hmz_kms_environment_variables["KMS_SOFT_MASTER"]}]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"
+        "mkdir -p /opt/kms/cfg && echo 'master = [HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"
       ]
       environment = [
         for key, value in local.hmz_kms_environment_variables : {

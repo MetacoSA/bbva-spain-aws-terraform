@@ -9,6 +9,12 @@ variable "random_pet" {
 variable "aws_vpc_id" {
   description = "AWS VPC ID for Security Group HMZ Vault Anti-Rewind file"
   type        = string
+
+
+  validation {
+    condition     = can(regex("^vpc-[a-fA-F0-9]{17}$", var.aws_vpc_id))
+    error_message = "The AWS VPC ID must be in the format 'vpc-xxxxxxxxxxxxxxxxx'."
+  }
 }
 
 variable "aws_vpc_cidr" {
@@ -17,13 +23,17 @@ variable "aws_vpc_cidr" {
 
   validation {
     condition     = can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.aws_vpc_cidr))
-    error_message = "The VPC CIDR block is not in the correct format. Expected format is x.x.x.x/y."
+    error_message = "The AWS VPC CIDR block is not in the correct format. Expected format is x.x.x.x/y."
   }
 }
 
 variable "aws_subnet_id" {
   description = "AWS Subnet ID"
   type        = string
+  validation {
+    condition     = can(regex("^subnet-[a-fA-F0-9]{17}$", var.aws_subnet_id))
+    error_message = "The AWS subnet ID must be in the format 'subnet-xxxxxxxxxxxxxxxxx'."
+  }
 }
 
 # variable "aws_subnet_ids" {
@@ -58,7 +68,7 @@ variable "aws_cloud_watch_logs_group" {
 variable "aws_cloud_watch_logs_stream_prefix" {
   description = "AWS CloudWatch Logs Stream Prefix"
   type        = string
-  default     = ""
+  default     = "hmz-trusted-components"
 }
 
 
@@ -165,13 +175,13 @@ variable "hmz_vault_container_registry_password" {
 
 # HMZ KMS Environment Variables
 
-variable "hmz_kms_software_master_key" {
+variable "hmz_kms_connect_software_master_key" {
   type        = string
   sensitive   = true
-  description = "Software KMS Master Key. (Environment Variable KMS_SOFT_MASTER, e.g. KMS_SOFT_MASTER='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff')"
+  description = "Software KMS Master Key. (Environment Variable HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY, e.g. HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff')"
 
   validation {
-    condition     = var.hmz_kms_software_master_key == "" || can(regex("^[0-9a-fA-F]+$", var.hmz_kms_software_master_key))
+    condition     = var.hmz_kms_connect_software_master_key == "" || can(regex("^[0-9a-fA-F]+$", var.hmz_kms_connect_software_master_key))
     error_message = "The Software KMS Master Key value must be a hexadecimal string."
   }
 }
@@ -224,7 +234,7 @@ variable "hmz_vault_harmonize_core_endpoint" {
 variable "hmz_vault_trusted_sig" {
   type        = string
   default     = ""
-  description = "System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable TRUSTED_SIG, without the 'pem:' at the beginning)."
+  description = "System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ_VAULT_TRUSTED_SIG, without the 'pem:' at the beginning)."
 
   validation {
     error_message = "Value must be empty or it must be a base64 encoded public key. Omit the the 'pem:' prefix"
@@ -243,4 +253,11 @@ variable "hmz_vault_id" {
     error_message = "Value must be and UUID (36 hex or - characters)."
     condition     = can(regex("^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$", var.hmz_vault_id))
   }
+}
+
+
+variable "hmz_vault_optional_maximum_fee" {
+  type        = bool
+  default     = false
+  description = "Vault Environment Variable HMZ_OPTIONAL_MAXIMUM_FEE"
 }

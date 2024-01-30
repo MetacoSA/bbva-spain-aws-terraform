@@ -12,8 +12,9 @@ locals {
     HARMONIZE_CORE_ENDPOINT = "${var.hmz_vault_harmonize_core_endpoint}/internal/v1"
 
     # HMZ Vault Environment variables: Vault HMZ Config
-    TRUSTED_SIG = "pem:${var.hmz_vault_trusted_sig}"
-    VAULT_ID    = var.hmz_vault_id
+    HMZ_VAULT_TRUSTED_SIG    = var.hmz_vault_trusted_sig != "" ? "pem:${var.hmz_vault_trusted_sig}" : ""
+    VAULT_ID                 = var.hmz_vault_id
+    HMZ_OPTIONAL_MAXIMUM_FEE = var.hmz_vault_optional_maximum_fee
 
     # HMZ Vault 
     PLATFORM           = "kms"
@@ -22,7 +23,7 @@ locals {
   }
 
   hmz_kms_environment_variables = {
-    KMS_SOFT_MASTER = var.hmz_kms_software_master_key
+    HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY = var.hmz_kms_connect_software_master_key
   }
 
   aws_ecs_task_container_registry_credentials = {
@@ -76,7 +77,6 @@ resource "aws_secretsmanager_secret_version" "hmz_kms_oci_registry_credentials" 
     password = var.hmz_kms_container_registry_password
   })
 }
-
 
 resource "aws_iam_role" "ecs_execution_role" {
   name = "${local.pet_name}-ecs-execution-role-for-hmz-vault"
@@ -147,16 +147,15 @@ resource "aws_ecs_task_definition" "task" {
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
       }
+      user       = "root"
+      entryPoint = ["/bin/sh", "-c"]
+      command = [
+        "mkdir -p /opt/vault-core/cfg/ && echo 'trusted.sig += [HMZ_VAULT_TRUSTED_SIG]' > /opt/vault-core/cfg/vault.cfg && chmod 444 /opt/vault-core/cfg/vault.cfg && exec /opt/entrypoint.sh 2>&1 | /opt/also_to_syslog.sh"
+      ]
       environment = [
         for key, value in local.hmz_vault_environment_variables : {
           name  = key
           value = tostring(value)
-        }
-      ]
-      portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
         }
       ]
       logConfiguration = local.log_config
@@ -173,7 +172,7 @@ resource "aws_ecs_task_definition" "task" {
       user       = "root"
       entryPoint = ["/bin/sh", "-c"]
       command = [
-        "mkdir -p /opt/kms/cfg && echo 'master = [${local.hmz_kms_environment_variables["KMS_SOFT_MASTER"]}]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"
+        "mkdir -p /opt/kms/cfg && echo 'master = [HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"
       ]
       environment = [
         for key, value in local.hmz_kms_environment_variables : {

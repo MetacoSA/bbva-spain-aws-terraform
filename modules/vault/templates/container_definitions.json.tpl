@@ -36,7 +36,7 @@
     "essential": true,
     "entryPoint": ["/bin/sh", "-c"]
     "command": [
-      "mkdir -p /opt/kms/cfg && echo 'master = [KMS_SOFT_MASTER]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"
+      "mkdir -p /opt/kms/cfg && echo 'master = [HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"
     ]
     "environment": ${jsonencode(hmz_kms_environment_variables)},
     "portMappings": [
