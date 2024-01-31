@@ -217,7 +217,6 @@ module "notary" {
   random_pet = local.pet_name
 
   # AWS Config
-  # aws_subnet_ids                 = [data.aws_subnet.hmz_trusted_components_subnet.id]
   aws_iam_role_ecs_task_role_arn     = aws_iam_role.ecs_task_role_for_hmz_trusted_components.arn
   aws_vpc_id                         = data.aws_vpc.aws_vpc_hmz_trusted_components.id
   aws_vpc_cidr                       = data.aws_vpc.aws_vpc_hmz_trusted_components.cidr_block

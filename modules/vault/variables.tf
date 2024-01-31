@@ -36,11 +36,6 @@ variable "aws_subnet_id" {
   }
 }
 
-# variable "aws_subnet_ids" {
-#   description = "AWS subnet ID for EFS HMZ Vault Anti-Rewind file"
-#   type        = string
-# }
-
 variable "aws_iam_role_ecs_task_role_arn" {
   description = "AWS IAM Role ARN for ECS Task"
   type        = string
