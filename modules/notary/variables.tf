@@ -161,7 +161,7 @@ variable "hmz_kms_container_registry_password" {
 variable "hmz_notary_oci_image" {
   type        = string
   default     = "metaco.azurecr.io/harmonize/approval-notary"
-  description = "Notary OCI Image"
+  description = "HMZ Notary OCI Image"
 
   validation {
     condition     = length(var.hmz_notary_oci_image) > 0
@@ -171,7 +171,7 @@ variable "hmz_notary_oci_image" {
 
 variable "hmz_notary_oci_tag" {
   type        = string
-  description = "Notary OCI Tag"
+  description = "HMZ Notary OCI Tag"
 
   validation {
     condition     = length(var.hmz_notary_oci_tag) > 0
@@ -182,7 +182,7 @@ variable "hmz_notary_oci_tag" {
 variable "hmz_notary_container_registry_user" {
   type        = string
   sensitive   = true
-  description = "Notary Container Registry User"
+  description = "HMZ Notary Container Registry User"
 
   validation {
     condition     = length(var.hmz_notary_container_registry_user) > 0
@@ -193,7 +193,7 @@ variable "hmz_notary_container_registry_user" {
 variable "hmz_notary_container_registry_password" {
   type        = string
   sensitive   = true
-  description = "Notary Container Registry Password"
+  description = "HMZ Notary Container Registry Password"
 
   validation {
     condition     = length(var.hmz_notary_container_registry_password) > 0
@@ -219,7 +219,7 @@ variable "hmz_kms_connect_software_master_key" {
 variable "hmz_notary_open_telemetry_type" {
   type        = string
   default     = "disabled"
-  description = "Notary type of Telemetry (Environment Variable HMZ_OPEN_TELEMETRY_TYPE)"
+  description = "HMZ Notary type of Telemetry (Environment Variable HMZ_OPEN_TELEMETRY_TYPE)"
 
   validation {
     error_message = "Value must be one of the available Open Telemetry Type: enable, otlp"
@@ -233,13 +233,13 @@ variable "hmz_notary_open_telemetry_type" {
 variable "hmz_notary_otel_sdk_disabled" {
   type        = bool
   default     = true
-  description = "Notary enables or disables Open Telemetry SDK (Environment Variable OTEL_SDK_DISABLED)"
+  description = "HMZ Notary enables or disables Open Telemetry SDK (Environment Variable OTEL_SDK_DISABLED)"
 }
 
 variable "hmz_notary_hc_tracing_enabled" {
   type        = bool
   default     = false
-  description = "Notary enables or disables Health Check Tracing (Environment Variable HMZ_HC_TRACING_ENABLED)"
+  description = "HMZ Notary enables or disables Health Check Tracing (Environment Variable HMZ_HC_TRACING_ENABLED)"
 }
 
 // ERROR: This log entry notes that at least one system component is inoperable and is interfering with the operability of other functionalities.
@@ -292,19 +292,19 @@ variable "hmz_notary_bridge_http_endpoint" {
 variable "hmz_notary_cols_dir" {
   type        = string
   default     = "/data/anti-rewind"
-  description = "Notary storage folder of the Anti-Rewind File (Environment Variable HMZ_NOTARY_COLS_DIR)"
+  description = "HMZ Notary storage folder of the Anti-Rewind File (Environment Variable HMZ_NOTARY_COLS_DIR)"
 }
 
 variable "hmz_notary_kms_grpc_keep_alive_interval" {
   type        = number
   default     = 10
-  description = "Notary gRPC connection to KMS Connect: Keep alive interval in seconds"
+  description = "HMZ Notary gRPC connection to KMS Connect: Keep alive interval in seconds"
 }
 
 variable "hmz_notary_kms_grpc_keep_alive_timeout" {
   type        = number
   default     = 10
-  description = "Notary gRPC connection to KMS Connect: Keep alive timeout in seconds"
+  description = "HMZ Notary gRPC connection to KMS Connect: Keep alive timeout in seconds"
 }
 
 variable "hmz_notary_state_manifest_file_path" {

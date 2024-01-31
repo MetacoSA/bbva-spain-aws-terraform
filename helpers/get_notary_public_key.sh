@@ -56,7 +56,7 @@ function get_notary_public_key() {
 retrieved_notary_public_key=$(get_notary_public_key)
 
 if [ -n "$retrieved_notary_public_key" ]; then
-  echo "Notary Public Key (base64): $retrieved_notary_public_key" >&2
+  echo "HMZ Notary Public Key (base64): $retrieved_notary_public_key" >&2
 else
   echo "Could not retrieve Notary Public Key" >&2
 fi

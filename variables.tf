@@ -7,7 +7,7 @@ variable "aws_enable_vpc_creation" {
 }
 
 variable "aws_region" {
-  description = "The AWS region to create resources in"
+  description = "The AWS region where Cloud resources will be deployed"
   type        = string
 
   validation {
@@ -56,17 +56,6 @@ variable "aws_vpc_id" {
   }
 }
 
-# variable "aws_vpc_cidr" {
-#   description = "AWS VPC CIDR block for Security Group HMZ Notary Anti-Rewind file"
-#   type        = string
-#   default     = ""
-
-#   validation {
-#     condition     = var.aws_vpc_cidr == "" || can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.aws_vpc_cidr))
-#     error_message = "The VPC CIDR block is not in the correct format. Expected format is x.x.x.x/y."
-#   }
-# }
-
 variable "aws_subnet_id" {
   description = "AWS Subnet ID"
   type        = string
@@ -78,7 +67,7 @@ variable "aws_subnet_id" {
 }
 
 variable "aws_security_group_id" {
-  description = "AWS Security Group"
+  description = "AWS Security Group ID"
   type        = string
   default     = ""
   validation {
@@ -146,9 +135,9 @@ variable "aws_cloud_watch_logs_stream_prefix" {
 }
 
 variable "aws_resource_tags" {
+  description = "A map of labels to be applied to the resource ('Name' or 'name' keys excluded)."
   type        = map(string)
   default     = {}
-  description = "A map of labels to be applied to the resource."
 
   validation {
     condition     = !contains(keys(var.aws_resource_tags), "Name") && !contains(keys(var.aws_resource_tags), "name")
@@ -165,7 +154,7 @@ variable "hmz_kms_connect_software_master_key" {
   type        = string
   sensitive   = true
   default     = ""
-  description = "Software KMS Master Key. (Environment Variable HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY, e.g. HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff')"
+  description = "HMZ KMS Connect Software Master Key (hexadecimal). (Environment Variable HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY, e.g. HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff')"
 
   validation {
     condition     = var.hmz_kms_connect_software_master_key == "" || can(regex("^[0-9a-fA-F]+$", var.hmz_kms_connect_software_master_key))
@@ -202,7 +191,7 @@ variable "hmz_metaco_container_registry_password" {
 variable "hmz_kms_oci_image" {
   type        = string
   default     = "metaco.azurecr.io/harmonize/kms-soft"
-  description = "KMS Connect OCI Image"
+  description = "HMZ KMS Connect OCI Image"
 
   validation {
     condition     = length(var.hmz_kms_oci_image) > 0
@@ -212,7 +201,7 @@ variable "hmz_kms_oci_image" {
 
 variable "hmz_kms_oci_tag" {
   type        = string
-  description = "KMS Connect OCI Tag"
+  description = "HMZ KMS Connect OCI Tag"
 
   validation {
     condition     = length(var.hmz_kms_oci_tag) > 0
@@ -224,14 +213,14 @@ variable "hmz_kms_container_registry_user" {
   type        = string
   default     = null
   sensitive   = true
-  description = "KMS Container Registry User"
+  description = "HMZ KMS Connect Container Registry User"
 }
 
 variable "hmz_kms_container_registry_password" {
   type        = string
   default     = null
   sensitive   = true
-  description = "KMS Container Registry Password"
+  description = "HMZ KMS Connect Container Registry Password"
 }
 
 ## HMZ Notary Container
@@ -239,7 +228,7 @@ variable "hmz_kms_container_registry_password" {
 variable "hmz_notary_oci_image" {
   type        = string
   default     = "metaco.azurecr.io/harmonize/approval-notary"
-  description = "Notary OCI Image"
+  description = "HMZ Notary OCI Image"
 
   validation {
     condition     = length(var.hmz_notary_oci_image) > 0
@@ -249,7 +238,7 @@ variable "hmz_notary_oci_image" {
 
 variable "hmz_notary_oci_tag" {
   type        = string
-  description = "Notary OCI Tag"
+  description = "HMZ Notary OCI Tag"
 
   validation {
     condition     = length(var.hmz_notary_oci_tag) > 0
@@ -261,14 +250,14 @@ variable "hmz_notary_container_registry_user" {
   type        = string
   default     = null
   sensitive   = true
-  description = "Notary Container Registry User"
+  description = "HMZ Notary Container Registry User"
 }
 
 variable "hmz_notary_container_registry_password" {
   type        = string
   default     = null
   sensitive   = true
-  description = "Notary Container Registry Password"
+  description = "HMZ Notary Container Registry Password"
 }
 
 ## HMZ Vault Container
@@ -276,7 +265,7 @@ variable "hmz_notary_container_registry_password" {
 variable "hmz_vault_oci_image" {
   type        = string
   default     = "metaco.azurecr.io/harmonize/vault-releases"
-  description = "Vault Connect OCI Image"
+  description = "HMZ Vault OCI Image"
 
   validation {
     condition     = length(var.hmz_vault_oci_image) > 0
@@ -286,7 +275,7 @@ variable "hmz_vault_oci_image" {
 
 variable "hmz_vault_oci_tag" {
   type        = string
-  description = "Vault Connect OCI Tag"
+  description = "HMZ Vault OCI Tag"
 
   validation {
     condition     = length(var.hmz_vault_oci_tag) > 0
@@ -298,14 +287,14 @@ variable "hmz_vault_container_registry_user" {
   type        = string
   default     = null
   sensitive   = true
-  description = "Vault Container Registry User"
+  description = "HMZ Vault Container Registry User"
 }
 
 variable "hmz_vault_container_registry_password" {
   type        = string
   default     = null
   sensitive   = true
-  description = "Vault Container Registry Password"
+  description = "HMZ Vault Container Registry Password"
 }
 
 # Notary Environment Variables
@@ -313,7 +302,7 @@ variable "hmz_vault_container_registry_password" {
 variable "hmz_notary_open_telemetry_type" {
   type        = string
   default     = "disabled"
-  description = "Notary type of Telemetry (Environment Variable HMZ_OPEN_TELEMETRY_TYPE)"
+  description = "HMZ Notary type of Telemetry (Environment Variable HMZ_OPEN_TELEMETRY_TYPE)"
 
   validation {
     error_message = "Value must be one of the available Open Telemetry Type: enable, otlp"
@@ -327,13 +316,13 @@ variable "hmz_notary_open_telemetry_type" {
 variable "hmz_notary_otel_sdk_disabled" {
   type        = bool
   default     = true
-  description = "Notary enables or disables Open Telemetry SDK (Environment Variable OTEL_SDK_DISABLED)"
+  description = "HMZ Notary enables or disables Open Telemetry SDK (Environment Variable OTEL_SDK_DISABLED)"
 }
 
 variable "hmz_notary_hc_tracing_enabled" {
   type        = bool
   default     = false
-  description = "Notary enables or disables Health Check Tracing (Environment Variable HMZ_HC_TRACING_ENABLED)"
+  description = "HMZ Notary enables or disables Health Check Tracing (Environment Variable HMZ_HC_TRACING_ENABLED)"
 }
 
 // ERROR: This log entry notes that at least one system component is inoperable and is interfering with the operability of other functionalities.
@@ -344,7 +333,7 @@ variable "hmz_notary_hc_tracing_enabled" {
 variable "hmz_notary_log_level" {
   type        = string
   default     = "INFO"
-  description = "Logging level"
+  description = "HMZ Notary Logging level"
 
   validation {
     error_message = "Value must be one of the available logging Level: ERROR, WARN, INFO, DEBUG, TRACE."
@@ -361,18 +350,18 @@ variable "hmz_notary_log_level" {
 variable "hmz_notary_grpc_enabled" {
   type        = bool
   default     = false
-  description = "Enables grpc communication with the notary bridge"
+  description = "Enables grpc communication with the Notary Bridge"
 }
 
 variable "hmz_notary_http_enabled" {
   type        = bool
   default     = true
-  description = "Enables http communication with the notary bridge"
+  description = "Enables http communication with the Notary Bridge"
 }
 
 variable "hmz_notary_bridge_http_endpoint" {
   type        = string
-  description = "Harmonize notary bridge API endpoint"
+  description = "Harmonize Notary bridge API endpoint"
 
   validation {
     error_message = "Value must be an HTTP(s) URL without a trailing slash."
@@ -386,19 +375,19 @@ variable "hmz_notary_bridge_http_endpoint" {
 variable "hmz_notary_cols_dir" {
   type        = string
   default     = "/data/anti-rewind"
-  description = "Notary storage folder of the Anti-Rewind File (Environment Variable HMZ_NOTARY_COLS_DIR)"
+  description = "HMZ Notary storage folder of the Anti-Rewind File (Environment Variable HMZ_NOTARY_COLS_DIR)"
 }
 
 variable "hmz_notary_kms_grpc_keep_alive_interval" {
   type        = number
   default     = 10
-  description = "Notary gRPC connection to KMS Connect: Keep alive interval in seconds"
+  description = "HMZ Notary gRPC connection to KMS Connect: Keep alive interval in seconds"
 }
 
 variable "hmz_notary_kms_grpc_keep_alive_timeout" {
   type        = number
   default     = 10
-  description = "Notary gRPC connection to KMS Connect: Keep alive timeout in seconds"
+  description = "HMZ Notary gRPC connection to KMS Connect: Keep alive timeout in seconds"
 }
 
 variable "hmz_notary_state_manifest_file_path" {
@@ -452,7 +441,7 @@ variable "vaults" {
 
 variable "hmz_vault_harmonize_core_endpoint" {
   type        = string
-  description = "Vault Environment Variable HARMONIZE_CORE_ENDPOINT (Vault Core Endpoint)"
+  description = "HMZ Vault Environment Variable HARMONIZE_CORE_ENDPOINT (Vault Core Endpoint)"
 
   validation {
     error_message = "Value must be an HTTP(s) URL without a trailing slash and without '/internal/v1'."

@@ -52,16 +52,16 @@ No modules.
 | <a name="input_hmz_kms_container_registry_user"></a> [hmz\_kms\_container\_registry\_user](#input\_hmz\_kms\_container\_registry\_user) | KMS Container Registry User | `string` | n/a | yes |
 | <a name="input_hmz_kms_oci_image"></a> [hmz\_kms\_oci\_image](#input\_hmz\_kms\_oci\_image) | KMS Connect OCI Image | `string` | `"metaco.azurecr.io/harmonize/kms-soft"` | no |
 | <a name="input_hmz_kms_oci_tag"></a> [hmz\_kms\_oci\_tag](#input\_hmz\_kms\_oci\_tag) | KMS Connect OCI Tag | `string` | n/a | yes |
-| <a name="input_hmz_vault_bridge_log_level"></a> [hmz\_vault\_bridge\_log\_level](#input\_hmz\_vault\_bridge\_log\_level) | Vault Environment Variable VAULT\_BRIDGE\_LOGLEVEL | `number` | `6` | no |
-| <a name="input_hmz_vault_container_registry_password"></a> [hmz\_vault\_container\_registry\_password](#input\_hmz\_vault\_container\_registry\_password) | Vault Container Registry Password | `string` | n/a | yes |
-| <a name="input_hmz_vault_container_registry_user"></a> [hmz\_vault\_container\_registry\_user](#input\_hmz\_vault\_container\_registry\_user) | Vault Container Registry User | `string` | n/a | yes |
-| <a name="input_hmz_vault_feature_otlp_in_stdout"></a> [hmz\_vault\_feature\_otlp\_in\_stdout](#input\_hmz\_vault\_feature\_otlp\_in\_stdout) | Vault Environment Variable HMZ\_FEATURE\_OTLP\_IN\_STDOUT (Display logs in JSON format) | `bool` | `false` | no |
-| <a name="input_hmz_vault_harmonize_core_endpoint"></a> [hmz\_vault\_harmonize\_core\_endpoint](#input\_hmz\_vault\_harmonize\_core\_endpoint) | Vault Environment Variable HARMONIZE\_CORE\_ENDPOINT (Vault Core Endpoint) | `string` | n/a | yes |
+| <a name="input_hmz_vault_bridge_log_level"></a> [hmz\_vault\_bridge\_log\_level](#input\_hmz\_vault\_bridge\_log\_level) | HMZ Vault Environment Variable VAULT\_BRIDGE\_LOGLEVEL | `number` | `6` | no |
+| <a name="input_hmz_vault_container_registry_password"></a> [hmz\_vault\_container\_registry\_password](#input\_hmz\_vault\_container\_registry\_password) | HMZ Vault Container Registry Password | `string` | n/a | yes |
+| <a name="input_hmz_vault_container_registry_user"></a> [hmz\_vault\_container\_registry\_user](#input\_hmz\_vault\_container\_registry\_user) | HMZ Vault Container Registry User | `string` | n/a | yes |
+| <a name="input_hmz_vault_feature_otlp_in_stdout"></a> [hmz\_vault\_feature\_otlp\_in\_stdout](#input\_hmz\_vault\_feature\_otlp\_in\_stdout) | HMZ Vault Environment Variable HMZ\_FEATURE\_OTLP\_IN\_STDOUT (Display logs in JSON format) | `bool` | `false` | no |
+| <a name="input_hmz_vault_harmonize_core_endpoint"></a> [hmz\_vault\_harmonize\_core\_endpoint](#input\_hmz\_vault\_harmonize\_core\_endpoint) | HMZ Vault Environment Variable HARMONIZE\_CORE\_ENDPOINT (Vault Core Endpoint) | `string` | n/a | yes |
 | <a name="input_hmz_vault_id"></a> [hmz\_vault\_id](#input\_hmz\_vault\_id) | UUID of the Vault (Environment Variable VAULT\_ID). | `string` | n/a | yes |
-| <a name="input_hmz_vault_log_level"></a> [hmz\_vault\_log\_level](#input\_hmz\_vault\_log\_level) | Vault Environment Variable VAULT\_LOGLEVEL | `number` | `6` | no |
-| <a name="input_hmz_vault_oci_image"></a> [hmz\_vault\_oci\_image](#input\_hmz\_vault\_oci\_image) | Vault Connect OCI Image | `string` | `"metaco.azurecr.io/harmonize/vault-releases"` | no |
-| <a name="input_hmz_vault_oci_tag"></a> [hmz\_vault\_oci\_tag](#input\_hmz\_vault\_oci\_tag) | Vault Connect OCI Tag | `string` | n/a | yes |
-| <a name="input_hmz_vault_optional_maximum_fee"></a> [hmz\_vault\_optional\_maximum\_fee](#input\_hmz\_vault\_optional\_maximum\_fee) | Vault Environment Variable HMZ\_OPTIONAL\_MAXIMUM\_FEE | `bool` | `false` | no |
+| <a name="input_hmz_vault_log_level"></a> [hmz\_vault\_log\_level](#input\_hmz\_vault\_log\_level) | HMZ Vault Environment Variable VAULT\_LOGLEVEL | `number` | `6` | no |
+| <a name="input_hmz_vault_oci_image"></a> [hmz\_vault\_oci\_image](#input\_hmz\_vault\_oci\_image) | HMZ Vault Connect OCI Image | `string` | `"metaco.azurecr.io/harmonize/vault-releases"` | no |
+| <a name="input_hmz_vault_oci_tag"></a> [hmz\_vault\_oci\_tag](#input\_hmz\_vault\_oci\_tag) | HMZ Vault Connect OCI Tag | `string` | n/a | yes |
+| <a name="input_hmz_vault_optional_maximum_fee"></a> [hmz\_vault\_optional\_maximum\_fee](#input\_hmz\_vault\_optional\_maximum\_fee) | HMZ Vault Environment Variable HMZ\_OPTIONAL\_MAXIMUM\_FEE | `bool` | `false` | no |
 | <a name="input_hmz_vault_trusted_notary_messaging_public_key"></a> [hmz\_vault\_trusted\_notary\_messaging\_public\_key](#input\_hmz\_vault\_trusted\_notary\_messaging\_public\_key) | System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ\_VAULT\_TRUSTED\_NOTARY\_MESSAGING\_PUBLIC\_KEY, without the 'pem:' at the beginning). | `string` | `""` | no |
 | <a name="input_random_pet"></a> [random\_pet](#input\_random\_pet) | Random Pet | `string` | `""` | no |
 

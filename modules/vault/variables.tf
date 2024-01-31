@@ -167,7 +167,7 @@ variable "hmz_kms_container_registry_password" {
 variable "hmz_vault_oci_image" {
   type        = string
   default     = "metaco.azurecr.io/harmonize/vault-releases"
-  description = "Vault Connect OCI Image"
+  description = "HMZ Vault Connect OCI Image"
 
   validation {
     condition     = length(var.hmz_vault_oci_image) > 0
@@ -177,7 +177,7 @@ variable "hmz_vault_oci_image" {
 
 variable "hmz_vault_oci_tag" {
   type        = string
-  description = "Vault Connect OCI Tag"
+  description = "HMZ Vault Connect OCI Tag"
 
   validation {
     condition     = length(var.hmz_vault_oci_tag) > 0
@@ -188,7 +188,7 @@ variable "hmz_vault_oci_tag" {
 variable "hmz_vault_container_registry_user" {
   type        = string
   sensitive   = true
-  description = "Vault Container Registry User"
+  description = "HMZ Vault Container Registry User"
 
   validation {
     condition     = length(var.hmz_vault_container_registry_user) > 0
@@ -199,7 +199,7 @@ variable "hmz_vault_container_registry_user" {
 variable "hmz_vault_container_registry_password" {
   type        = string
   sensitive   = true
-  description = "Vault Container Registry Password"
+  description = "HMZ Vault Container Registry Password"
 
   validation {
     condition     = length(var.hmz_vault_container_registry_password) > 0
@@ -226,13 +226,13 @@ variable "hmz_kms_connect_software_master_key" {
 variable "hmz_vault_feature_otlp_in_stdout" {
   type        = bool
   default     = false
-  description = "Vault Environment Variable HMZ_FEATURE_OTLP_IN_STDOUT (Display logs in JSON format)"
+  description = "HMZ Vault Environment Variable HMZ_FEATURE_OTLP_IN_STDOUT (Display logs in JSON format)"
 }
 
 variable "hmz_vault_log_level" {
   type        = number
   default     = 6
-  description = "Vault Environment Variable VAULT_LOGLEVEL"
+  description = "HMZ Vault Environment Variable VAULT_LOGLEVEL"
 
   validation {
     condition     = contains([3, 4, 6, 7], var.hmz_vault_log_level)
@@ -243,7 +243,7 @@ variable "hmz_vault_log_level" {
 variable "hmz_vault_bridge_log_level" {
   type        = number
   default     = 6
-  description = "Vault Environment Variable VAULT_BRIDGE_LOGLEVEL"
+  description = "HMZ Vault Environment Variable VAULT_BRIDGE_LOGLEVEL"
 
   validation {
     condition     = contains([3, 4, 6, 7], var.hmz_vault_bridge_log_level)
@@ -253,7 +253,7 @@ variable "hmz_vault_bridge_log_level" {
 
 variable "hmz_vault_harmonize_core_endpoint" {
   type        = string
-  description = "Vault Environment Variable HARMONIZE_CORE_ENDPOINT (Vault Core Endpoint)"
+  description = "HMZ Vault Environment Variable HARMONIZE_CORE_ENDPOINT (Vault Core Endpoint)"
 
   validation {
     error_message = "Value must be an HTTP(s) URL without a trailing slash and without '/internal/v1'."
@@ -293,5 +293,5 @@ variable "hmz_vault_id" {
 variable "hmz_vault_optional_maximum_fee" {
   type        = bool
   default     = false
-  description = "Vault Environment Variable HMZ_OPTIONAL_MAXIMUM_FEE"
+  description = "HMZ Vault Environment Variable HMZ_OPTIONAL_MAXIMUM_FEE"
 }
