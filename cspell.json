@@ -1,0 +1,29 @@
+{
+  // Enable your dictionary by adding it to the list of `dictionaries`
+  "dictionaries": ["custom-words"],
+
+  // Tell CSpell about your dictionary
+  "dictionaryDefinitions": [
+    {
+      // The name of the dictionary is used to look it up.
+      "name": "custom-words",
+      // Path to the custom word file. Relative to this `cspell.json` file.
+      "path": "./.cspell/custom-words.txt",
+      // Some editor extensions will use `addWords` for adding words to your
+      // personal dictionary.
+      "addWords": true
+    }
+  ],
+
+  "overrides": [
+    {
+      "filename": "**/scripts/tmp/**",
+      "ignoreRegExpList": [
+        // This regex is a simplified matcher for base64 and may not catch every single case.
+        // It checks for strings that consist of base64 characters and are typically
+        // separated by equal signs for padding.
+        "[A-Za-z0-9+/]+={0,3}"
+      ]
+    }
+  ]
+}

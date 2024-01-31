@@ -62,7 +62,7 @@ No modules.
 | <a name="input_hmz_vault_oci_image"></a> [hmz\_vault\_oci\_image](#input\_hmz\_vault\_oci\_image) | Vault Connect OCI Image | `string` | `"metaco.azurecr.io/harmonize/vault-releases"` | no |
 | <a name="input_hmz_vault_oci_tag"></a> [hmz\_vault\_oci\_tag](#input\_hmz\_vault\_oci\_tag) | Vault Connect OCI Tag | `string` | n/a | yes |
 | <a name="input_hmz_vault_optional_maximum_fee"></a> [hmz\_vault\_optional\_maximum\_fee](#input\_hmz\_vault\_optional\_maximum\_fee) | Vault Environment Variable HMZ\_OPTIONAL\_MAXIMUM\_FEE | `bool` | `false` | no |
-| <a name="input_hmz_vault_trusted_notary_messaging_public_key"></a> [hmz\_vault\_trusted\_notary\_messaging\_public\_key](#input\_hmz\_vault\_trusted\_notary\_messaging\_public\_key) | System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ\_VAULT\_TRUSTED\_NOTRAY\_MESSAGING\_PUBLIC\_KEY, without the 'pem:' at the beginning). | `string` | `""` | no |
+| <a name="input_hmz_vault_trusted_notary_messaging_public_key"></a> [hmz\_vault\_trusted\_notary\_messaging\_public\_key](#input\_hmz\_vault\_trusted\_notary\_messaging\_public\_key) | System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ\_VAULT\_TRUSTED\_NOTARY\_MESSAGING\_PUBLIC\_KEY, without the 'pem:' at the beginning). | `string` | `""` | no |
 | <a name="input_random_pet"></a> [random\_pet](#input\_random\_pet) | Random Pet | `string` | `""` | no |
 
 ## Outputs

@@ -268,7 +268,7 @@ variable "hmz_vault_harmonize_core_endpoint" {
 variable "hmz_vault_trusted_notary_messaging_public_key" {
   type        = string
   default     = ""
-  description = "System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ_VAULT_TRUSTED_NOTRAY_MESSAGING_PUBLIC_KEY, without the 'pem:' at the beginning)."
+  description = "System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ_VAULT_TRUSTED_NOTARY_MESSAGING_PUBLIC_KEY, without the 'pem:' at the beginning)."
 
   validation {
     error_message = "Value must be empty or it must be a base64 encoded public key. Omit the the 'pem:' prefix"

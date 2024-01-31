@@ -19,7 +19,7 @@ locals {
     HARMONIZE_CORE_ENDPOINT = "${var.hmz_vault_harmonize_core_endpoint}/internal/v1"
 
     # HMZ Vault Environment variables: Vault HMZ Config
-    HMZ_VAULT_TRUSTED_NOTRAY_MESSAGING_PUBLIC_KEY = var.hmz_vault_trusted_notary_messaging_public_key != "" ? "pem:${var.hmz_vault_trusted_notary_messaging_public_key}" : ""
+    HMZ_VAULT_TRUSTED_NOTARY_MESSAGING_PUBLIC_KEY = var.hmz_vault_trusted_notary_messaging_public_key != "" ? "pem:${var.hmz_vault_trusted_notary_messaging_public_key}" : ""
     VAULT_ID                                      = var.hmz_vault_id
     HMZ_OPTIONAL_MAXIMUM_FEE                      = var.hmz_vault_optional_maximum_fee
 
@@ -158,7 +158,7 @@ resource "aws_ecs_task_definition" "task" {
       user       = "1001"
       entryPoint = ["/bin/sh", "-c"]
       command = [
-        "mkdir -p /opt/vault-core/cfg/ && echo 'trusted.sig += [HMZ_VAULT_TRUSTED_NOTRAY_MESSAGING_PUBLIC_KEY]' > /opt/vault-core/cfg/vault.cfg && chmod 444 /opt/vault-core/cfg/vault.cfg && exec /opt/entrypoint.sh 2>&1 | /opt/also_to_syslog.sh"
+        "mkdir -p /opt/vault-core/cfg/ && echo 'trusted.sig += [HMZ_VAULT_TRUSTED_NOTARY_MESSAGING_PUBLIC_KEY]' > /opt/vault-core/cfg/vault.cfg && chmod 444 /opt/vault-core/cfg/vault.cfg && exec /opt/entrypoint.sh 2>&1 | /opt/also_to_syslog.sh"
       ]
       environment = [
         for key, value in local.hmz_vault_environment_variables : {
