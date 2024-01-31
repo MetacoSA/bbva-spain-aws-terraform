@@ -1,3 +1,119 @@
+/**
+ * # Metaco Harmonize Trusted Components Terraform Scripts for AWS ECS
+ * 
+ * This project simplifies the creation and update of AWS ECS over Fargate,
+ * hosting Harmonize Trusted Components with a software HMZ KMS provider.
+ * 
+ * Request information to our Customer success team to become familiar with
+ * the software HMZ KMS provider.
+ * 
+ * ## Required Dependencies
+ * 
+ * To get started, install all required dependencies on the host machine.
+ * 
+ * ### Check versions
+ * 
+ * To check `terraform` version, run `terraform version`:
+ * 
+ * Example output:
+ * 
+ * ```bash
+ * Terraform v1.6.3
+ * on darwin_arm64
+ * + provider registry.terraform.io/hashicorp/aws v5.26.0
+ * + provider registry.terraform.io/hashicorp/random v2.3.2
+ * ```
+ *
+ * Initialize the Terraform scripts:
+ *
+ * ```bash
+ * terraform init
+ * ```
+ *
+ * ### Local configuration
+ *
+ * The Terraform scripts uses two configuration files:
+ *
+ * - `.env` file (for AWS Credentials)
+ * - `tfvars.terraform` file (for deployment parameters) 
+ *
+ * Copy the provided sample configuration files
+ *  
+ * ```bash
+ * cp .env.sample .env
+ * cp terraform.tfvars.sample terraform.tfvars
+ * ```
+ *
+ * ### AWS Credentials 
+ *
+ *
+ * Fill the environment variables file with you AWS Account credentials
+ * 
+ * ```bash
+ * export AWS_ACCESS_KEY_ID='<YOUR_AWS_ACCESS_KEY>'
+ * export AWS_SECRET_ACCESS_KEY='<YOUR_AWS_ACCESS_KEY>'
+ * ```
+ *
+ * The [official AWS IAM Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) provide detailed steps to create an AWS Access Key.
+ * An AWS Access Key can be created for the root user by [following this documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_add-key.html).
+ *
+ * ### Metaco Container Registry Credentials
+ *
+ * Retrieve the provided Metaco Container Registry Credentials (user and password) and fill the `tfvars.terraform` file.
+ *
+ * ### Harmonize Version
+ *
+ * The OCI (Open Container Initiative) tags MUST be provided in the file `tfvars.terraform` for the following HMZ Trusted Components:
+ *
+ * - Harmonize KMS Connect 
+ * - Harmonize Notary
+ * - Harmonize Vault
+ *
+ * ### Harmonize SaaS instance endpoints
+ *
+ * Retrieve the provided dedicated Harmonize endpoint:
+ *
+ * - Harmonize Core API endpoint (for the Vault)
+ * - Harmonize Notary Bridge endpoint (for the Notary)
+ *
+ * The `tfvars.terraform` file MUST be filled with those values.
+ *
+ * ### Harmonize Vault Config
+ * 
+ * For each Harmonize Vault instance, fill the values:
+ *
+ * - Vault ID
+ * - Vault Log Level
+ * - Vault Bridge Log Level
+ * - Vault Trusted Notary Messaging Public Key (retrieved after Genesis is executed successfully)
+ *
+ * #### Notary Message Public Key retrieval
+ *
+ * First apply the Genesis against the Harmonize API (HTTP POST request @ /v1/genesis)
+ *
+ * ```bash
+ * curl -s \
+ *     --location -g \
+ *     --request POST "$HMZ_URL_API/v1/genesis" \
+ *     --header 'Content-Type: application/json' \
+ *     --data @"$FILE_NAME_GENESIS_CONFIG_JSON"
+ * ```
+ *
+ * Then, after a successful Genesis application, fetch from the Harmonize API,
+ * the Notary Messaging Public Key:
+ *
+ * ```bash
+ * curl \
+ *     --location -g \
+ *     --request GET \
+ *     --url "$HMZ_URL_API/internal/v1/system/information"
+ * ```
+ *
+ */
+
+// The above comment must start at the immediate first line of the .tf file before any resource, variable, module, etc.
+// See: https://terraform-docs.io/user-guide/configuration/header-from/ 
+
 terraform {
   required_providers {
     aws = {
@@ -40,8 +156,8 @@ resource "aws_security_group" "ecs_https_egress" {
   description = "Security group for ECS container to allow outbound HTTPS traffic"
   vpc_id      = data.aws_vpc.aws_vpc_hmz_trusted_components.id
 
-  # Allow outbound HTTPS traffic on port 443
   egress {
+    description = "Allow outbound HTTPS traffic on port 443"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"          # -1 means all protocols

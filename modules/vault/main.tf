@@ -1,3 +1,10 @@
+/**
+ * # About
+ *
+ * Module for the Vault
+ * 
+ */
+
 locals {
   pet_name            = random_pet.random_name.id
   pet_name_underscore = replace(local.pet_name, "-", "_")
