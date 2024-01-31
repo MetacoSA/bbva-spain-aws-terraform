@@ -207,6 +207,7 @@ resource "aws_ecs_task_definition" "task" {
         credentialsParameter = aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.arn
       }
       user = "root"
+      # user = "1001"
       environment = [
         for key, value in local.hmz_notary_environment_variables : {
           name  = key
@@ -242,7 +243,8 @@ resource "aws_ecs_task_definition" "task" {
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
       }
-      user       = "root"
+      user = "root"
+      # user       = "1001"
       entryPoint = ["/bin/sh", "-c"]
       command = [
         "mkdir -p /opt/kms/cfg && echo 'master = [HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY]' > /opt/kms/cfg/soft.cfg && chmod 444 /opt/kms/cfg/soft.cfg && exec /usr/bin/kms"

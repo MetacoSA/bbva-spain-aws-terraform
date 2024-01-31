@@ -185,9 +185,9 @@ module "vault" {
   hmz_vault_container_registry_password = coalesce(var.hmz_vault_container_registry_password, var.hmz_metaco_container_registry_password)
 
   // Same environment variables for all vaults
-  hmz_vault_harmonize_core_endpoint   = var.hmz_vault_harmonize_core_endpoint
-  hmz_vault_trusted_sig               = var.hmz_vault_trusted_sig
-  hmz_kms_connect_software_master_key = var.hmz_kms_connect_software_master_key
+  hmz_vault_harmonize_core_endpoint             = var.hmz_vault_harmonize_core_endpoint
+  hmz_vault_trusted_notary_messaging_public_key = var.hmz_vault_trusted_notary_messaging_public_key
+  hmz_kms_connect_software_master_key           = var.hmz_kms_connect_software_master_key
 
   // Specific environment variables for each vault
   hmz_vault_id                     = each.value.hmz_vault_id

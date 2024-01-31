@@ -10,7 +10,7 @@ hmz_notary_bridge_http_endpoint = "https://..."
 
 # Vault Environment Variables 
 hmz_vault_harmonize_core_endpoint = "https://..."
-hmz_vault_trusted_sig             = ""
+hmz_vault_trusted_notary_messaging_public_key             = ""
 
 vaults = [
   {
