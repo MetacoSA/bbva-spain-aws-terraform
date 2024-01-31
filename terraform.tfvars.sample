@@ -1,16 +1,27 @@
+# AWS Config
+aws_region                         = ""
+aws_enable_vpc_creation            = true
+aws_cloud_watch_logs_region        = ""
+aws_cloud_watch_logs_group         = ""
+aws_cloud_watch_logs_stream_prefix = ""
+aws_vpc_id                         = "vpc-xxxxxxxxxxxxxxxxx"
+aws_vpc_cidr                       = "x.x.x.x/y"
+aws_subnet_id                      = "subnet-xxxxxxxxxxxxxxxxx"
+aws_security_group_id              = "sg-xxxxxxxxxxxxxxxxx"
+
 hmz_metaco_container_registry_user     = ""
 hmz_metaco_container_registry_password = ""
 hmz_kms_oci_tag                        = "1.1.6"
-hmz_notary_oci_tag                     = "1.9.22"
-hmz_vault_oci_tag                      = "1.19.15"
+hmz_notary_oci_tag                     = "1.9.37"
+hmz_vault_oci_tag                      = "1.19.23"
 
 # Notary Environment Variables
 hmz_notary_enabled              = true
-hmz_notary_bridge_http_endpoint = "https://..."
+hmz_notary_bridge_http_endpoint = "https://bridge...."
 
 # Vault Environment Variables 
-hmz_vault_harmonize_core_endpoint = "https://..."
-hmz_vault_trusted_notary_messaging_public_key             = ""
+hmz_vault_harmonize_core_endpoint             = "http://api...."
+hmz_vault_trusted_notary_messaging_public_key = ""
 
 vaults = [
   {
@@ -18,5 +29,9 @@ vaults = [
     hmz_vault_log_level              = 6
     hmz_vault_bridge_log_level       = 6
     hmz_vault_feature_otlp_in_stdout = false
+    hmz_vault_optional_maximum_fee   = false
   },
 ]
+
+# HMZ KMS Connect Software Master Key (hexadecimal)
+hmz_kms_connect_software_master_key = ""
