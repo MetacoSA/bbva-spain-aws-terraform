@@ -9,17 +9,18 @@ aws_vpc_cidr                       = "x.x.x.x/y"
 aws_subnet_id                      = "subnet-xxxxxxxxxxxxxxxxx"
 aws_security_group_id              = "sg-xxxxxxxxxxxxxxxxx"
 
+# HMZ OCI images config
 hmz_metaco_container_registry_user     = ""
 hmz_metaco_container_registry_password = ""
 hmz_kms_oci_tag                        = "1.1.6"
 hmz_notary_oci_tag                     = "1.9.37"
 hmz_vault_oci_tag                      = "1.19.23"
 
-# Notary Environment Variables
+# HMZ Notary Environment Variables
 hmz_notary_enabled              = true
 hmz_notary_bridge_http_endpoint = "https://bridge...."
 
-# Vault Environment Variables 
+# HMZ Vault Environment Variables 
 hmz_vault_harmonize_core_endpoint             = "http://api...."
 hmz_vault_trusted_notary_messaging_public_key = ""
 
