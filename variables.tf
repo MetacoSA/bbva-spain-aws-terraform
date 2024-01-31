@@ -1,5 +1,11 @@
 # AWS Setup
 
+variable "aws_enable_vpc_creation" {
+  type        = bool
+  default     = false
+  description = "Set this flag to true to enable AWS VPC Creation"
+}
+
 variable "aws_region" {
   description = "The AWS region to create resources in"
   type        = string
@@ -43,14 +49,20 @@ variable "aws_region" {
 variable "aws_vpc_id" {
   description = "AWS VPC ID for Security Group HMZ Notary Anti-Rewind file"
   type        = string
+  default     = ""
+  validation {
+    condition     = var.aws_vpc_id == "" || can(regex("^$|^vpc-[0-9a-fA-F]{8,17}$", var.aws_vpc_id))
+    error_message = "The VPC ID must be empty or in the format 'vpc-xxxxxxxx'."
+  }
 }
 
 variable "aws_vpc_cidr" {
   description = "AWS VPC CIDR block for Security Group HMZ Notary Anti-Rewind file"
   type        = string
+  default     = ""
 
   validation {
-    condition     = can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.aws_vpc_cidr))
+    condition     = var.aws_vpc_cidr == "" || can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.aws_vpc_cidr))
     error_message = "The VPC CIDR block is not in the correct format. Expected format is x.x.x.x/y."
   }
 }
@@ -58,17 +70,67 @@ variable "aws_vpc_cidr" {
 variable "aws_subnet_id" {
   description = "AWS Subnet ID"
   type        = string
+  default     = ""
+  validation {
+    condition     = var.aws_subnet_id == "" || can(regex("^subnet-[a-fA-F0-9]{17}$", var.aws_subnet_id))
+    error_message = "The AWS subnet ID must be in the format 'subnet-xxxxxxxxxxxxxxxxx'."
+  }
 }
 
 variable "aws_security_group_id" {
   description = "AWS Security Group"
+  type        = string
+  default     = ""
+  validation {
+    condition     = var.aws_security_group_id == "" || can(regex("^$|^sg-[0-9a-fA-F]{8,17}$", var.aws_security_group_id))
+    error_message = "The Security Group ID must be empty or in the format 'sg-xxxxxxxx'."
+  }
 }
 
+variable "aws_ecs_cluster_name" {
+  description = "AWS ECS Cluster Name"
+  type        = string
+  default     = ""
+}
 
 variable "aws_cloud_watch_logs_region" {
   description = "AWS CloudWatch Logs Region"
   type        = string
   default     = ""
+  validation {
+    condition = var.aws_cloud_watch_logs_region == "" || contains([
+      "af-south-1",
+      "ap-east-1",
+      "ap-northeast-1",
+      "ap-northeast-2",
+      "ap-northeast-3",
+      "ap-southeast-1",
+      "ap-southeast-2",
+      "ap-southeast-3",
+      "ap-southeast-4",
+      "ap-south-1",
+      "ap-south-2",
+      "ca-central-1",
+      "eu-central-1",
+      "eu-central-2",
+      "eu-north-1",
+      "eu-south-1",
+      "eu-south-2",
+      "eu-west-1",
+      "eu-west-2",
+      "eu-west-3",
+      "il-central-1",
+      "me-central-1",
+      "me-south-1",
+      "sa-east-1",
+      "us-east-1",
+      "us-east-2",
+      "us-west-1",
+      "us-west-2",
+    ], var.aws_cloud_watch_logs_region)
+
+    error_message = "The specified region (${var.aws_cloud_watch_logs_region}) is not valid. Please choose a valid AWS region."
+  }
 }
 
 variable "aws_cloud_watch_logs_group" {
@@ -83,6 +145,16 @@ variable "aws_cloud_watch_logs_stream_prefix" {
   default     = ""
 }
 
+variable "aws_resource_tags" {
+  type        = map(string)
+  default     = {}
+  description = "A map of labels to be applied to the resource."
+
+  validation {
+    condition     = !contains(keys(var.aws_resource_tags), "Name") && !contains(keys(var.aws_resource_tags), "name")
+    error_message = "The labels map must not contain keys named 'Name' or 'name'."
+  }
+}
 variable "hmz_notary_enabled" {
   type        = bool
   default     = false

@@ -15,27 +15,27 @@ locals {
   pet_name = random_pet.random_name.id
 }
 
-module "vpc" {
-  source = "./modules/vpc"
-}
+
 resource "random_pet" "random_name" {
   length    = 2
   separator = "-"
 }
 
+module "vpc" {
+  source = "./modules/vpc"
+  count  = var.aws_enable_vpc_creation ? 1 : 0
+}
+
 data "aws_vpc" "aws_vpc_hmz_trusted_components" {
-  id = module.vpc.vpc_id
+  id = var.aws_enable_vpc_creation ? module.vpc.0.vpc_id : var.aws_vpc_id
 }
 
 data "aws_subnet" "hmz_trusted_components_subnet" {
-  id = module.vpc.private_subnet_id
-}
-
-data "aws_security_group" "hmz_trusted_components_sg" {
-  id = var.aws_security_group_id
+  id = var.aws_enable_vpc_creation ? module.vpc.0.private_subnet_id : var.aws_subnet_id
 }
 
 resource "aws_security_group" "ecs_https_egress" {
+  count       = var.aws_security_group_id == "" ? 1 : 0
   name        = "ecs_https_egress_sg"
   description = "Security group for ECS container to allow outbound HTTPS traffic"
   vpc_id      = data.aws_vpc.aws_vpc_hmz_trusted_components.id
@@ -48,19 +48,15 @@ resource "aws_security_group" "ecs_https_egress" {
     cidr_blocks = ["0.0.0.0/0"] # 0.0.0.0/0 represents all IP addresses
     # ipv6_cidr_blocks = ["::/0"]
   }
-  # ingress {
-  #   from_port        = 0
-  #   to_port          = 0
-  #   protocol         = "-1"          # -1 means all protocols
-  #   cidr_blocks      = ["0.0.0.0/0"] # 0.0.0.0/0 represents all IP addresses
-  #   ipv6_cidr_blocks = ["::/0"]
-  # }
 
   tags = {
     Name = "ECS HTTPS Egress"
   }
 }
 
+data "aws_security_group" "hmz_trusted_components_sg" {
+  id = var.aws_security_group_id == "" ? aws_security_group.ecs_https_egress.0.id : var.aws_security_group_id
+}
 
 resource "aws_iam_role" "ecs_task_role_for_hmz_trusted_components" {
   name = "ecs_task_role_for_hmz_trusted_components"
@@ -85,12 +81,17 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 }
 
 resource "aws_ecs_cluster" "cluster" {
-  name = "${local.pet_name}-hmz-trusted-components-ecs-cluster"
+  count = var.aws_ecs_cluster_name == "" ? 1 : 0
+  name  = "${local.pet_name}-hmz-trusted-components-ecs-cluster"
 
   setting {
     name  = "containerInsights"
     value = "enabled"
   }
+}
+
+data "aws_ecs_cluster" "aws_ecs_cluster_for_hmz_trusted_components" {
+  cluster_name = var.aws_ecs_cluster_name == "" ? aws_ecs_cluster.cluster.0.name : var.aws_ecs_cluster_name
 }
 
 module "notary" {
@@ -108,7 +109,7 @@ module "notary" {
   aws_cloud_watch_logs_group         = var.aws_cloud_watch_logs_group
   aws_cloud_watch_logs_stream_prefix = var.aws_cloud_watch_logs_stream_prefix
   aws_cloud_watch_logs_region        = var.aws_cloud_watch_logs_region
-  aws_resource_tags                  = {}
+  aws_resource_tags                  = var.aws_resource_tags
 
   hmz_kms_oci_image                   = var.hmz_kms_oci_image
   hmz_kms_oci_tag                     = var.hmz_kms_oci_tag
@@ -143,13 +144,13 @@ resource "aws_ecs_service" "hmz_notary_ecs_service" {
 
   desired_count   = 1
   name            = "hmz-notary-ecs-service"
-  cluster         = aws_ecs_cluster.cluster.id
+  cluster         = data.aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components.id
   task_definition = module.notary.0.ecs_task_definition.arn
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [module.vpc.private_subnet_id]
-    security_groups = [aws_security_group.ecs_https_egress.id]
+    subnets         = [data.aws_subnet.hmz_trusted_components_subnet.id]
+    security_groups = [data.aws_security_group.hmz_trusted_components_sg.id]
   }
 }
 
@@ -171,7 +172,7 @@ module "vault" {
   aws_cloud_watch_logs_group         = var.aws_cloud_watch_logs_group
   aws_cloud_watch_logs_stream_prefix = var.aws_cloud_watch_logs_stream_prefix
   aws_cloud_watch_logs_region        = var.aws_cloud_watch_logs_region
-  aws_resource_tags                  = {}
+  aws_resource_tags                  = var.aws_resource_tags
 
   hmz_kms_oci_image                   = var.hmz_kms_oci_image
   hmz_kms_oci_tag                     = var.hmz_kms_oci_tag
@@ -207,12 +208,12 @@ resource "aws_ecs_service" "hmz_vault_ecs_service" {
 
   desired_count   = 1
   name            = "hmz-vault-${each.value.hmz_vault_id}-ecs-service"
-  cluster         = aws_ecs_cluster.cluster.id
+  cluster         = data.aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components.id
   task_definition = module.vault[each.key].ecs_task_definition.arn
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [module.vpc.private_subnet_id]
-    security_groups = [aws_security_group.ecs_https_egress.id]
+    subnets         = [data.aws_subnet.hmz_trusted_components_subnet.id]
+    security_groups = [data.aws_security_group.hmz_trusted_components_sg.id]
   }
 }
