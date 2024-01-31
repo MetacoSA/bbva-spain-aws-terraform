@@ -158,7 +158,6 @@ curl \
 | <a name="input_aws_resource_tags"></a> [aws\_resource\_tags](#input\_aws\_resource\_tags) | A map of labels to be applied to the resource. | `map(string)` | `{}` | no |
 | <a name="input_aws_security_group_id"></a> [aws\_security\_group\_id](#input\_aws\_security\_group\_id) | AWS Security Group | `string` | `""` | no |
 | <a name="input_aws_subnet_id"></a> [aws\_subnet\_id](#input\_aws\_subnet\_id) | AWS Subnet ID | `string` | `""` | no |
-| <a name="input_aws_vpc_cidr"></a> [aws\_vpc\_cidr](#input\_aws\_vpc\_cidr) | AWS VPC CIDR block for Security Group HMZ Notary Anti-Rewind file | `string` | `""` | no |
 | <a name="input_aws_vpc_id"></a> [aws\_vpc\_id](#input\_aws\_vpc\_id) | AWS VPC ID for Security Group HMZ Notary Anti-Rewind file | `string` | `""` | no |
 | <a name="input_hmz_kms_connect_software_master_key"></a> [hmz\_kms\_connect\_software\_master\_key](#input\_hmz\_kms\_connect\_software\_master\_key) | Software KMS Master Key. (Environment Variable HMZ\_KMS\_CONNECT\_SOFTWARE\_MASTER\_KEY, e.g. HMZ\_KMS\_CONNECT\_SOFTWARE\_MASTER\_KEY='79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff') | `string` | `""` | no |
 | <a name="input_hmz_kms_container_registry_password"></a> [hmz\_kms\_container\_registry\_password](#input\_hmz\_kms\_container\_registry\_password) | KMS Container Registry Password | `string` | `null` | no |

@@ -56,16 +56,16 @@ variable "aws_vpc_id" {
   }
 }
 
-variable "aws_vpc_cidr" {
-  description = "AWS VPC CIDR block for Security Group HMZ Notary Anti-Rewind file"
-  type        = string
-  default     = ""
+# variable "aws_vpc_cidr" {
+#   description = "AWS VPC CIDR block for Security Group HMZ Notary Anti-Rewind file"
+#   type        = string
+#   default     = ""
 
-  validation {
-    condition     = var.aws_vpc_cidr == "" || can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.aws_vpc_cidr))
-    error_message = "The VPC CIDR block is not in the correct format. Expected format is x.x.x.x/y."
-  }
-}
+#   validation {
+#     condition     = var.aws_vpc_cidr == "" || can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.aws_vpc_cidr))
+#     error_message = "The VPC CIDR block is not in the correct format. Expected format is x.x.x.x/y."
+#   }
+# }
 
 variable "aws_subnet_id" {
   description = "AWS Subnet ID"
