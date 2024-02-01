@@ -36,6 +36,20 @@ variable "aws_subnet_id" {
   }
 }
 
+variable "aws_security_group_id" {
+  description = "AWS Security Group ID"
+  type        = string
+  validation {
+    condition     = can(regex("^$|^sg-[0-9a-fA-F]{8,17}$", var.aws_security_group_id))
+    error_message = "The Security Group ID must be empty or in the format 'sg-xxxxxxxx'."
+  }
+}
+
+variable "aws_ecs_cluster_name" {
+  description = "AWS ECS Cluster Name"
+  type        = string
+}
+
 variable "aws_iam_role_ecs_task_role_arn" {
   description = "AWS IAM Role ARN for ECS Task"
   type        = string

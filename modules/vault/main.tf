@@ -6,7 +6,7 @@
  */
 
 locals {
-  pet_name            = random_pet.random_name.id
+  pet_name            = var.random_pet != "" ? var.random_pet : random_pet.random_name.id
   pet_name_underscore = replace(local.pet_name, "-", "_")
 
   hmz_vault_environment_variables = {
@@ -61,6 +61,14 @@ data "aws_subnet" "hmz_trusted_components_subnet" {
   id = var.aws_subnet_id
 }
 
+data "aws_ecs_cluster" "aws_ecs_cluster_for_hmz_trusted_components" {
+  cluster_name = var.aws_ecs_cluster_name
+}
+
+data "aws_security_group" "hmz_trusted_components_sg" {
+  id = var.aws_security_group_id
+}
+
 resource "aws_secretsmanager_secret" "hmz_vault_oci_registry_credentials" {
   name = "${local.pet_name}-hmz-vault-oci-registry-credentials"
 }
@@ -73,6 +81,10 @@ resource "aws_secretsmanager_secret_version" "hmz_vault_oci_registry_credentials
   })
 }
 
+data "aws_secretsmanager_secret" "hmz_vault_oci_registry_credentials" {
+  arn = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
+}
+
 resource "aws_secretsmanager_secret" "hmz_kms_oci_registry_credentials" {
   name = "${local.pet_name}-hmz-kms-for-vault-oci-registry-credentials"
 }
@@ -83,6 +95,10 @@ resource "aws_secretsmanager_secret_version" "hmz_kms_oci_registry_credentials" 
     username = var.hmz_kms_container_registry_user,
     password = var.hmz_kms_container_registry_password
   })
+}
+
+data "aws_secretsmanager_secret" "hmz_kms_oci_registry_credentials" {
+  arn = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
 }
 
 resource "aws_iam_role" "ecs_execution_role" {
@@ -121,8 +137,8 @@ resource "aws_iam_policy" "ecs_secrets_policy" {
         ],
         Effect = "Allow",
         Resource = [
-          aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn,
-          aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
+          data.aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn,
+          data.aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
         ]
 
       }
@@ -152,7 +168,7 @@ resource "aws_ecs_task_definition" "task" {
       memory    = 4096
       essential = true
       repositoryCredentials = {
-        credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
+        credentialsParameter = data.aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
       }
       # user       = "root"
       user       = "1001"
@@ -175,7 +191,7 @@ resource "aws_ecs_task_definition" "task" {
       memory    = 4096
       essential = true
       repositoryCredentials = {
-        credentialsParameter = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
+        credentialsParameter = data.aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
       }
       user = "root"
       # user       = "1001"
@@ -198,4 +214,18 @@ resource "aws_ecs_task_definition" "task" {
       logConfiguration = local.log_config
     }
   ])
+}
+
+resource "aws_ecs_service" "service" {
+
+  desired_count   = 1
+  name            = "${local.pet_name}-hmz-vault-${var.hmz_vault_id}-ecs-service"
+  cluster         = data.aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components.id
+  task_definition = aws_ecs_task_definition.task.arn
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets         = [data.aws_subnet.hmz_trusted_components_subnet.id]
+    security_groups = [data.aws_security_group.hmz_trusted_components_sg.id]
+  }
 }

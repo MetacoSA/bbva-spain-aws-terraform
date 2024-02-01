@@ -22,6 +22,7 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [aws_ecs_service.service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_task_definition.task](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition) | resource |
 | [aws_iam_policy.ecs_secrets_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.ecs_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -32,6 +33,10 @@ No modules.
 | [aws_secretsmanager_secret_version.hmz_kms_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [aws_secretsmanager_secret_version.hmz_vault_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [random_pet.random_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
+| [aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecs_cluster) | data source |
+| [aws_secretsmanager_secret.hmz_kms_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
+| [aws_secretsmanager_secret.hmz_vault_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
+| [aws_security_group.hmz_trusted_components_sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/security_group) | data source |
 | [aws_subnet.hmz_trusted_components_subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_vpc.aws_vpc_hmz_trusted_components](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
@@ -42,8 +47,10 @@ No modules.
 | <a name="input_aws_cloud_watch_logs_group"></a> [aws\_cloud\_watch\_logs\_group](#input\_aws\_cloud\_watch\_logs\_group) | AWS CloudWatch Logs Group | `string` | `""` | no |
 | <a name="input_aws_cloud_watch_logs_region"></a> [aws\_cloud\_watch\_logs\_region](#input\_aws\_cloud\_watch\_logs\_region) | AWS CloudWatch Logs Region | `string` | `""` | no |
 | <a name="input_aws_cloud_watch_logs_stream_prefix"></a> [aws\_cloud\_watch\_logs\_stream\_prefix](#input\_aws\_cloud\_watch\_logs\_stream\_prefix) | AWS CloudWatch Logs Stream Prefix | `string` | `"hmz-trusted-components"` | no |
+| <a name="input_aws_ecs_cluster_name"></a> [aws\_ecs\_cluster\_name](#input\_aws\_ecs\_cluster\_name) | AWS ECS Cluster Name | `string` | n/a | yes |
 | <a name="input_aws_iam_role_ecs_task_role_arn"></a> [aws\_iam\_role\_ecs\_task\_role\_arn](#input\_aws\_iam\_role\_ecs\_task\_role\_arn) | AWS IAM Role ARN for ECS Task | `string` | n/a | yes |
 | <a name="input_aws_resource_tags"></a> [aws\_resource\_tags](#input\_aws\_resource\_tags) | A map of labels to be applied to the resource. | `map(string)` | `{}` | no |
+| <a name="input_aws_security_group_id"></a> [aws\_security\_group\_id](#input\_aws\_security\_group\_id) | AWS Security Group ID | `string` | n/a | yes |
 | <a name="input_aws_subnet_id"></a> [aws\_subnet\_id](#input\_aws\_subnet\_id) | AWS Subnet ID | `string` | n/a | yes |
 | <a name="input_aws_vpc_cidr"></a> [aws\_vpc\_cidr](#input\_aws\_vpc\_cidr) | AWS VPC CIDR block for Security Group HMZ Vault Anti-Rewind file | `string` | n/a | yes |
 | <a name="input_aws_vpc_id"></a> [aws\_vpc\_id](#input\_aws\_vpc\_id) | AWS VPC ID for Security Group HMZ Vault Anti-Rewind file | `string` | n/a | yes |
@@ -69,6 +76,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_ecs_service"></a> [ecs\_service](#output\_ecs\_service) | The entire ECS service definition |
 | <a name="output_ecs_task_definition"></a> [ecs\_task\_definition](#output\_ecs\_task\_definition) | The entire ECS task definition |
 | <a name="output_ecs_task_definition_arn"></a> [ecs\_task\_definition\_arn](#output\_ecs\_task\_definition\_arn) | The ARN of the ECS task definition |
 | <a name="output_ecs_task_definition_family"></a> [ecs\_task\_definition\_family](#output\_ecs\_task\_definition\_family) | The family of the ECS task definition |

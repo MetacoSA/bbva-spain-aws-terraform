@@ -221,6 +221,8 @@ module "notary" {
   aws_vpc_id                         = data.aws_vpc.aws_vpc_hmz_trusted_components.id
   aws_vpc_cidr                       = data.aws_vpc.aws_vpc_hmz_trusted_components.cidr_block
   aws_subnet_id                      = data.aws_subnet.hmz_trusted_components_subnet.id
+  aws_security_group_id              = data.aws_security_group.hmz_trusted_components_sg.id
+  aws_ecs_cluster_name               = data.aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components.cluster_name
   aws_cloud_watch_logs_group         = var.aws_cloud_watch_logs_group
   aws_cloud_watch_logs_stream_prefix = var.aws_cloud_watch_logs_stream_prefix
   aws_cloud_watch_logs_region        = var.aws_cloud_watch_logs_region
@@ -255,20 +257,6 @@ module "notary" {
   hmz_kms_connect_software_master_key = var.hmz_kms_connect_software_master_key
 }
 
-resource "aws_ecs_service" "hmz_notary_ecs_service" {
-
-  desired_count   = 1
-  name            = "hmz-notary-ecs-service"
-  cluster         = data.aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components.id
-  task_definition = module.notary.0.ecs_task_definition.arn
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets         = [data.aws_subnet.hmz_trusted_components_subnet.id]
-    security_groups = [data.aws_security_group.hmz_trusted_components_sg.id]
-  }
-}
-
 module "vault" {
   source = "./modules/vault"
 
@@ -284,6 +272,8 @@ module "vault" {
   aws_vpc_id                         = data.aws_vpc.aws_vpc_hmz_trusted_components.id
   aws_vpc_cidr                       = data.aws_vpc.aws_vpc_hmz_trusted_components.cidr_block
   aws_subnet_id                      = data.aws_subnet.hmz_trusted_components_subnet.id
+  aws_security_group_id              = data.aws_security_group.hmz_trusted_components_sg.id
+  aws_ecs_cluster_name               = data.aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components.cluster_name
   aws_cloud_watch_logs_group         = var.aws_cloud_watch_logs_group
   aws_cloud_watch_logs_stream_prefix = var.aws_cloud_watch_logs_stream_prefix
   aws_cloud_watch_logs_region        = var.aws_cloud_watch_logs_region
@@ -310,25 +300,4 @@ module "vault" {
   hmz_vault_bridge_log_level       = each.value.hmz_vault_bridge_log_level
   hmz_vault_feature_otlp_in_stdout = each.value.hmz_vault_feature_otlp_in_stdout
   hmz_vault_optional_maximum_fee   = each.value.hmz_vault_optional_maximum_fee
-}
-
-resource "aws_ecs_service" "hmz_vault_ecs_service" {
-
-  depends_on = [module.vault]
-
-  for_each = {
-    for index, vault in var.vaults :
-    index => vault
-  }
-
-  desired_count   = 1
-  name            = "hmz-vault-${each.value.hmz_vault_id}-ecs-service"
-  cluster         = data.aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components.id
-  task_definition = module.vault[each.key].ecs_task_definition.arn
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets         = [data.aws_subnet.hmz_trusted_components_subnet.id]
-    security_groups = [data.aws_security_group.hmz_trusted_components_sg.id]
-  }
 }

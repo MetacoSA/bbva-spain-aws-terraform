@@ -12,3 +12,9 @@ output "ecs_task_definition" {
   description = "The entire ECS task definition"
   value       = aws_ecs_task_definition.task
 }
+
+output "ecs_service" {
+  description = "The entire ECS service definition"
+  value       = aws_ecs_service.service
+}
+
