@@ -114,7 +114,6 @@ variable "aws_cloud_watch_logs_stream_prefix" {
   default     = "hmz-trusted-components"
 }
 
-
 variable "aws_resource_tags" {
   type        = map(string)
   default     = {}
@@ -124,6 +123,18 @@ variable "aws_resource_tags" {
     condition     = !contains(keys(var.aws_resource_tags), "Name") && !contains(keys(var.aws_resource_tags), "name")
     error_message = "The labels map must not contain keys named 'Name' or 'name'."
   }
+}
+
+variable "aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials" {
+  description = "AWS Secrets Manager Secret ARN for HMZ Vault OCI registry credentials"
+  type        = string
+  default     = ""
+}
+
+variable "aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials" {
+  description = "AWS Secrets Manager Secret ARN for HMZ KMS Connect OCI registry credentials"
+  type        = string
+  default     = ""
 }
 
 ## HMZ KMS Container

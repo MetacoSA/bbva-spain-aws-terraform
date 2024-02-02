@@ -125,6 +125,18 @@ variable "aws_resource_tags" {
   }
 }
 
+variable "aws_secrets_manager_arn_for_hmz_notary_oci_registry_credentials" {
+  description = "AWS Secrets Manager Secret ARN for HMZ Notary OCI registry credentials"
+  type        = string
+  default     = ""
+}
+
+variable "aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials" {
+  description = "AWS Secrets Manager Secret ARN for HMZ KMS Connect OCI registry credentials"
+  type        = string
+  default     = ""
+}
+
 ## HMZ KMS Container
 
 variable "hmz_kms_oci_image" {

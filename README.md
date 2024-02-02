@@ -136,9 +136,12 @@ curl \
 | [aws_ecs_cluster.cluster](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_cluster) | resource |
 | [aws_iam_role.ecs_task_role_for_hmz_trusted_components](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.ecs_task_execution_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_secretsmanager_secret.hmz_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
+| [aws_secretsmanager_secret_version.hmz_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [aws_security_group.ecs_https_egress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [random_pet.random_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 | [aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecs_cluster) | data source |
+| [aws_secretsmanager_secret.hmz_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
 | [aws_security_group.hmz_trusted_components_sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/security_group) | data source |
 | [aws_subnet.hmz_trusted_components_subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_vpc.aws_vpc_hmz_trusted_components](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
@@ -154,6 +157,7 @@ curl \
 | <a name="input_aws_enable_vpc_creation"></a> [aws\_enable\_vpc\_creation](#input\_aws\_enable\_vpc\_creation) | Set this flag to true to enable AWS VPC Creation | `bool` | `false` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The AWS region where Cloud resources will be deployed | `string` | n/a | yes |
 | <a name="input_aws_resource_tags"></a> [aws\_resource\_tags](#input\_aws\_resource\_tags) | A map of labels to be applied to the resource ('Name' or 'name' keys excluded). | `map(string)` | `{}` | no |
+| <a name="input_aws_secrets_manager_arn_for_hmz_oci_registry_credentials"></a> [aws\_secrets\_manager\_arn\_for\_hmz\_oci\_registry\_credentials](#input\_aws\_secrets\_manager\_arn\_for\_hmz\_oci\_registry\_credentials) | AWS Secrets Manager Secret ARN for Harmonize OCI registry credentials | `string` | `""` | no |
 | <a name="input_aws_security_group_id"></a> [aws\_security\_group\_id](#input\_aws\_security\_group\_id) | AWS Security Group ID | `string` | `""` | no |
 | <a name="input_aws_subnet_id"></a> [aws\_subnet\_id](#input\_aws\_subnet\_id) | AWS Subnet ID | `string` | `""` | no |
 | <a name="input_aws_vpc_id"></a> [aws\_vpc\_id](#input\_aws\_vpc\_id) | AWS VPC ID for Security Group HMZ Notary Anti-Rewind file | `string` | `""` | no |

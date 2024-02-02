@@ -69,36 +69,44 @@ data "aws_security_group" "hmz_trusted_components_sg" {
   id = var.aws_security_group_id
 }
 
-resource "aws_secretsmanager_secret" "hmz_vault_oci_registry_credentials" {
-  name = "${local.pet_name}-hmz-vault-oci-registry-credentials"
-}
+# AWS Secrets Manager
 
-resource "aws_secretsmanager_secret_version" "hmz_vault_oci_registry_credentials" {
-  secret_id = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.id
-  secret_string = jsonencode({
-    username = var.hmz_vault_container_registry_user,
-    password = var.hmz_vault_container_registry_password
-  })
-}
+# resource "aws_secretsmanager_secret" "hmz_vault_oci_registry_credentials" {
+#   count = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? 1 : 0
+#   name  = "${local.pet_name}-hmz-vault-oci-registry-credentials"
+# }
+
+# resource "aws_secretsmanager_secret_version" "hmz_vault_oci_registry_credentials" {
+#   count     = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? 1 : 0
+#   secret_id = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.0.id
+#   secret_string = jsonencode({
+#     username = var.hmz_vault_container_registry_user,
+#     password = var.hmz_vault_container_registry_password
+#   })
+# }
 
 data "aws_secretsmanager_secret" "hmz_vault_oci_registry_credentials" {
-  arn = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
+  # arn = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials
+  arn = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials
 }
 
-resource "aws_secretsmanager_secret" "hmz_kms_oci_registry_credentials" {
-  name = "${local.pet_name}-hmz-kms-for-vault-oci-registry-credentials"
-}
+# resource "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
+#   count = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? 1 : 0
+#   name  = "${local.pet_name}-hmz-kms-connect-for-vault-oci-registry-credentials"
+# }
 
-resource "aws_secretsmanager_secret_version" "hmz_kms_oci_registry_credentials" {
-  secret_id = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.id
-  secret_string = jsonencode({
-    username = var.hmz_kms_container_registry_user,
-    password = var.hmz_kms_container_registry_password
-  })
-}
+# resource "aws_secretsmanager_secret_version" "hmz_kms_connect_oci_registry_credentials" {
+#   count     = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? 1 : 0
+#   secret_id = aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.id
+#   secret_string = jsonencode({
+#     username = var.hmz_kms_container_registry_user,
+#     password = var.hmz_kms_container_registry_password
+#   })
+# }
 
-data "aws_secretsmanager_secret" "hmz_kms_oci_registry_credentials" {
-  arn = aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
+data "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
+  # arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
+  arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
 }
 
 resource "aws_iam_role" "ecs_execution_role" {
@@ -138,7 +146,7 @@ resource "aws_iam_policy" "ecs_secrets_policy" {
         Effect = "Allow",
         Resource = [
           data.aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn,
-          data.aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
+          data.aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.arn
         ]
 
       }
@@ -191,7 +199,7 @@ resource "aws_ecs_task_definition" "task" {
       memory    = 4096
       essential = true
       repositoryCredentials = {
-        credentialsParameter = data.aws_secretsmanager_secret.hmz_kms_oci_registry_credentials.arn
+        credentialsParameter = data.aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.arn
       }
       user = "root"
       # user       = "1001"

@@ -137,6 +137,8 @@ resource "random_pet" "random_name" {
   separator = "-"
 }
 
+# AWS Network
+
 module "vpc" {
   source = "./modules/vpc"
   count  = var.aws_enable_vpc_creation ? 1 : 0
@@ -174,6 +176,8 @@ data "aws_security_group" "hmz_trusted_components_sg" {
   id = var.aws_security_group_id == "" ? aws_security_group.ecs_https_egress.0.id : var.aws_security_group_id
 }
 
+# AWS IAM
+
 resource "aws_iam_role" "ecs_task_role_for_hmz_trusted_components" {
   name = "ecs_task_role_for_hmz_trusted_components"
 
@@ -196,6 +200,8 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# AWS ECS
+
 resource "aws_ecs_cluster" "cluster" {
   count = var.aws_ecs_cluster_name == "" ? 1 : 0
   name  = "${local.pet_name}-hmz-trusted-components-ecs-cluster"
@@ -209,6 +215,28 @@ resource "aws_ecs_cluster" "cluster" {
 data "aws_ecs_cluster" "aws_ecs_cluster_for_hmz_trusted_components" {
   cluster_name = var.aws_ecs_cluster_name == "" ? aws_ecs_cluster.cluster.0.name : var.aws_ecs_cluster_name
 }
+
+# AWS Secrets Manager for HMZ
+
+resource "aws_secretsmanager_secret" "hmz_oci_registry_credentials" {
+  count = var.aws_secrets_manager_arn_for_hmz_oci_registry_credentials == "" ? 1 : 0
+  name  = "${local.pet_name}-metaco-oci-registry-credentials"
+}
+
+resource "aws_secretsmanager_secret_version" "hmz_oci_registry_credentials" {
+  count     = var.aws_secrets_manager_arn_for_hmz_oci_registry_credentials == "" ? 1 : 0
+  secret_id = aws_secretsmanager_secret.hmz_oci_registry_credentials.0.id
+  secret_string = jsonencode({
+    username = var.hmz_metaco_container_registry_user,
+    password = var.hmz_metaco_container_registry_password
+  })
+}
+
+data "aws_secretsmanager_secret" "hmz_oci_registry_credentials" {
+  arn = var.aws_secrets_manager_arn_for_hmz_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_oci_registry_credentials
+}
+
+# HMZ Trusted Components
 
 module "notary" {
   source = "./modules/notary"
@@ -227,6 +255,9 @@ module "notary" {
   aws_cloud_watch_logs_stream_prefix = var.aws_cloud_watch_logs_stream_prefix
   aws_cloud_watch_logs_region        = var.aws_cloud_watch_logs_region
   aws_resource_tags                  = var.aws_resource_tags
+
+  aws_secrets_manager_arn_for_hmz_notary_oci_registry_credentials      = data.aws_secretsmanager_secret.hmz_oci_registry_credentials.arn
+  aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials = data.aws_secretsmanager_secret.hmz_oci_registry_credentials.arn
 
   hmz_kms_oci_image                   = var.hmz_kms_oci_image
   hmz_kms_oci_tag                     = var.hmz_kms_oci_tag
@@ -278,6 +309,9 @@ module "vault" {
   aws_cloud_watch_logs_stream_prefix = var.aws_cloud_watch_logs_stream_prefix
   aws_cloud_watch_logs_region        = var.aws_cloud_watch_logs_region
   aws_resource_tags                  = var.aws_resource_tags
+
+  aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials       = data.aws_secretsmanager_secret.hmz_oci_registry_credentials.arn
+  aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials = data.aws_secretsmanager_secret.hmz_oci_registry_credentials.arn
 
   hmz_kms_oci_image                   = var.hmz_kms_oci_image
   hmz_kms_oci_tag                     = var.hmz_kms_oci_tag

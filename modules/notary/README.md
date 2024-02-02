@@ -32,14 +32,10 @@ No modules.
 | [aws_iam_role.ecs_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.ecs_execution_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.ecs_secrets_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_secretsmanager_secret.hmz_kms_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
-| [aws_secretsmanager_secret.hmz_notary_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
-| [aws_secretsmanager_secret_version.hmz_kms_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
-| [aws_secretsmanager_secret_version.hmz_notary_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [aws_security_group.efs_sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [random_pet.random_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 | [aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecs_cluster) | data source |
-| [aws_secretsmanager_secret.hmz_kms_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
+| [aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
 | [aws_secretsmanager_secret.hmz_notary_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
 | [aws_security_group.hmz_trusted_components_sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/security_group) | data source |
 | [aws_subnet.hmz_trusted_components_subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
@@ -55,6 +51,8 @@ No modules.
 | <a name="input_aws_ecs_cluster_name"></a> [aws\_ecs\_cluster\_name](#input\_aws\_ecs\_cluster\_name) | AWS ECS Cluster Name | `string` | n/a | yes |
 | <a name="input_aws_iam_role_ecs_task_role_arn"></a> [aws\_iam\_role\_ecs\_task\_role\_arn](#input\_aws\_iam\_role\_ecs\_task\_role\_arn) | AWS IAM Role ARN for ECS Task | `string` | n/a | yes |
 | <a name="input_aws_resource_tags"></a> [aws\_resource\_tags](#input\_aws\_resource\_tags) | A map of labels to be applied to the resource. | `map(string)` | `{}` | no |
+| <a name="input_aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials"></a> [aws\_secrets\_manager\_arn\_for\_hmz\_kms\_connect\_oci\_registry\_credentials](#input\_aws\_secrets\_manager\_arn\_for\_hmz\_kms\_connect\_oci\_registry\_credentials) | AWS Secrets Manager Secret ARN for HMZ KMS Connect OCI registry credentials | `string` | `""` | no |
+| <a name="input_aws_secrets_manager_arn_for_hmz_notary_oci_registry_credentials"></a> [aws\_secrets\_manager\_arn\_for\_hmz\_notary\_oci\_registry\_credentials](#input\_aws\_secrets\_manager\_arn\_for\_hmz\_notary\_oci\_registry\_credentials) | AWS Secrets Manager Secret ARN for HMZ Notary OCI registry credentials | `string` | `""` | no |
 | <a name="input_aws_security_group_id"></a> [aws\_security\_group\_id](#input\_aws\_security\_group\_id) | AWS Security Group ID | `string` | n/a | yes |
 | <a name="input_aws_subnet_id"></a> [aws\_subnet\_id](#input\_aws\_subnet\_id) | AWS Subnet ID | `string` | n/a | yes |
 | <a name="input_aws_vpc_cidr"></a> [aws\_vpc\_cidr](#input\_aws\_vpc\_cidr) | AWS VPC CIDR block | `string` | n/a | yes |

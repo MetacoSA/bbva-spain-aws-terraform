@@ -144,6 +144,14 @@ variable "aws_resource_tags" {
     error_message = "The labels map must not contain keys named 'Name' or 'name'."
   }
 }
+
+variable "aws_secrets_manager_arn_for_hmz_oci_registry_credentials" {
+  description = "AWS Secrets Manager Secret ARN for Harmonize OCI registry credentials"
+  type        = string
+  default     = ""
+}
+
+# HMZ
 variable "hmz_notary_enabled" {
   type        = bool
   default     = false
