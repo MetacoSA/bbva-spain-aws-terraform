@@ -17,4 +17,3 @@ output "ecs_service" {
   description = "The entire ECS service definition"
   value       = aws_ecs_service.service
 }
-
