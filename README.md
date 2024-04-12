@@ -7,6 +7,12 @@ hosting Harmonize Trusted Components with a software HMZ KMS provider.
 Request information to our Customer success team to become familiar with
 the software HMZ KMS provider.
 
+## Architecture
+
+The Terraform scripts deploy the following Harmonize Trusted Components over AWS ECS:
+
+![AWS Architecture](./assets/architecture.png)
+
 ## Required Dependencies
 
 To get started, install all required dependencies on the host machine.
@@ -44,7 +50,9 @@ cp .env.sample .env
 cp terraform.tfvars.sample terraform.tfvars
 ```
 
-### AWS Credentials
+### AWS Login
+
+#### AWS Credentials
 
 Fill the environment variables file with you AWS Account credentials
 
@@ -56,7 +64,14 @@ export AWS_SECRET_ACCESS_KEY='<YOUR_AWS_ACCESS_KEY>'
 The [official AWS IAM Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) provide detailed steps to create an AWS Access Key.
 An AWS Access Key can be created for the root user by [following this documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_add-key.html).
 
-### Metaco Container Registry Credentials
+#### AWS SSO Login
+
+```bash
+aws sso login --profile "<YOUR_AWS_ACCOUNT_NAME>"
+export AWS_PROFILE="<YOUR_AWS_ACCOUNT_NAME>"
+```
+
+### Ripple Custody Container Registry Credentials
 
 Retrieve the provided Metaco Container Registry Credentials (user and password) and fill the `tfvars.terraform` file.
 
@@ -188,10 +203,12 @@ curl \
 | <a name="input_hmz_vault_container_registry_password"></a> [hmz\_vault\_container\_registry\_password](#input\_hmz\_vault\_container\_registry\_password) | HMZ Vault Container Registry Password | `string` | `null` | no |
 | <a name="input_hmz_vault_container_registry_user"></a> [hmz\_vault\_container\_registry\_user](#input\_hmz\_vault\_container\_registry\_user) | HMZ Vault Container Registry User | `string` | `null` | no |
 | <a name="input_hmz_vault_harmonize_core_endpoint"></a> [hmz\_vault\_harmonize\_core\_endpoint](#input\_hmz\_vault\_harmonize\_core\_endpoint) | HMZ Vault Environment Variable HARMONIZE\_CORE\_ENDPOINT (Vault Core Endpoint) | `string` | n/a | yes |
+| <a name="input_hmz_vault_harmonize_core_no_proxy_address"></a> [hmz\_vault\_harmonize\_core\_no\_proxy\_address](#input\_hmz\_vault\_harmonize\_core\_no\_proxy\_address) | HMZ Vault Environment Variable HARMONIZE\_CORE\_NO\_PROXY\_ADDRESS | `string` | `""` | no |
+| <a name="input_hmz_vault_harmonize_core_proxy_address"></a> [hmz\_vault\_harmonize\_core\_proxy\_address](#input\_hmz\_vault\_harmonize\_core\_proxy\_address) | HMZ Vault Environment Variable HARMONIZE\_CORE\_PROXY\_ADDRESS | `string` | `""` | no |
 | <a name="input_hmz_vault_oci_image"></a> [hmz\_vault\_oci\_image](#input\_hmz\_vault\_oci\_image) | HMZ Vault OCI Image | `string` | `"metaco.azurecr.io/harmonize/vault-releases"` | no |
 | <a name="input_hmz_vault_oci_tag"></a> [hmz\_vault\_oci\_tag](#input\_hmz\_vault\_oci\_tag) | HMZ Vault OCI Tag | `string` | n/a | yes |
-| <a name="input_hmz_vault_trusted_notary_messaging_public_key"></a> [hmz\_vault\_trusted\_notary\_messaging\_public\_key](#input\_hmz\_vault\_trusted\_notary\_messaging\_public\_key) | System (Notary) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ\_VAULT\_TRUSTED\_NOTARY\_MESSAGING\_PUBLIC\_KEY, without the 'pem:' at the beginning). | `string` | `""` | no |
-| <a name="input_vaults"></a> [vaults](#input\_vaults) | List of Vault instances. | <pre>list(object({<br>    hmz_vault_id                     = string<br>    hmz_vault_log_level              = number<br>    hmz_vault_bridge_log_level       = number<br>    hmz_vault_feature_otlp_in_stdout = bool<br>    hmz_vault_optional_maximum_fee   = bool<br>  }))</pre> | `[]` | no |
+| <a name="input_hmz_vault_trusted_notary_messaging_public_key"></a> [hmz\_vault\_trusted\_notary\_messaging\_public\_key](#input\_hmz\_vault\_trusted\_notary\_messaging\_public\_key) | System (Notary) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable VAULT\_TRUSTED\_SIG, without the 'pem:' at the beginning). | `string` | `""` | no |
+| <a name="input_vaults"></a> [vaults](#input\_vaults) | List of Ripple Custody Vault instances. | <pre>list(object({<br>    hmz_vault_id                     = string<br>    hmz_vault_log_level              = number<br>    hmz_vault_bridge_log_level       = number<br>    hmz_vault_feature_otlp_in_stdout = bool<br>    hmz_vault_optional_maximum_fee   = bool<br>  }))</pre> | `[]` | no |
 
 ## Outputs
 

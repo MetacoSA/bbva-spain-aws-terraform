@@ -7,6 +7,12 @@
  * Request information to our Customer success team to become familiar with
  * the software HMZ KMS provider.
  * 
+ * ## Architecture
+ * 
+ * The Terraform scripts deploy the following Harmonize Trusted Components over AWS ECS:
+ * 
+ * ![AWS Architecture](./assets/architecture.png)
+ * 
  * ## Required Dependencies
  * 
  * To get started, install all required dependencies on the host machine.
@@ -43,8 +49,10 @@
  * cp .env.sample .env
  * cp terraform.tfvars.sample terraform.tfvars
  * ```
+ * 
+ * ### AWS Login
  *
- * ### AWS Credentials 
+ * #### AWS Credentials 
  *
  *
  * Fill the environment variables file with you AWS Account credentials
@@ -56,8 +64,15 @@
  *
  * The [official AWS IAM Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) provide detailed steps to create an AWS Access Key.
  * An AWS Access Key can be created for the root user by [following this documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_add-key.html).
+ * 
+ * #### AWS SSO Login
  *
- * ### Metaco Container Registry Credentials
+ * ```bash 
+ * aws sso login --profile "<YOUR_AWS_ACCOUNT_NAME>"
+ * export AWS_PROFILE="<YOUR_AWS_ACCOUNT_NAME>"
+ * ``` 
+ *
+ * ### Ripple Custody Container Registry Credentials
  *
  * Retrieve the provided Metaco Container Registry Credentials (user and password) and fill the `tfvars.terraform` file.
  *
@@ -327,6 +342,8 @@ module "vault" {
   hmz_vault_harmonize_core_endpoint             = var.hmz_vault_harmonize_core_endpoint
   hmz_vault_trusted_notary_messaging_public_key = var.hmz_vault_trusted_notary_messaging_public_key
   hmz_kms_connect_software_master_key           = var.hmz_kms_connect_software_master_key
+  hmz_vault_harmonize_core_proxy_address        = var.hmz_vault_harmonize_core_proxy_address
+  hmz_vault_harmonize_core_no_proxy_address     = var.hmz_vault_harmonize_core_no_proxy_address
 
   // Specific environment variables for each vault
   hmz_vault_id                     = each.value.hmz_vault_id

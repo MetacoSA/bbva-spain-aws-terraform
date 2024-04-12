@@ -19,23 +19,22 @@ locals {
     HARMONIZE_CORE_ENDPOINT = "${var.hmz_vault_harmonize_core_endpoint}/internal/v1"
 
     # HMZ Vault Environment variables: Vault HMZ Config
-    HMZ_VAULT_TRUSTED_NOTARY_MESSAGING_PUBLIC_KEY = var.hmz_vault_trusted_notary_messaging_public_key != "" ? "pem:${var.hmz_vault_trusted_notary_messaging_public_key}" : ""
-    VAULT_ID                                      = var.hmz_vault_id
-    HMZ_OPTIONAL_MAXIMUM_FEE                      = var.hmz_vault_optional_maximum_fee
+    VAULT_TRUSTED_SIG        = var.hmz_vault_trusted_notary_messaging_public_key != "" ? "pem:${var.hmz_vault_trusted_notary_messaging_public_key}" : ""
+    VAULT_ID                 = var.hmz_vault_id
+    HMZ_OPTIONAL_MAXIMUM_FEE = var.hmz_vault_optional_maximum_fee
 
     # HMZ Vault 
     PLATFORM           = "kms"
     VAULT_KMS_ENDPOINT = "localhost:10000"
     VAULT_CORE_ADDRESS = "localhost:10054"
+
+    # HTTP Proxy Configuration
+    HARMONIZE_CORE_PROXY_ADDRESS    = var.hmz_vault_harmonize_core_proxy_address
+    HARMONIZE_CORE_NO_PROXY_ADDRESS = var.hmz_vault_harmonize_core_no_proxy_address
   }
 
   hmz_kms_environment_variables = {
     HMZ_KMS_CONNECT_SOFTWARE_MASTER_KEY = var.hmz_kms_connect_software_master_key
-  }
-
-  aws_ecs_task_container_registry_credentials = {
-    username = var.hmz_kms_container_registry_user,
-    password = var.hmz_kms_container_registry_password
   }
 
   log_config = length(var.aws_cloud_watch_logs_group) > 0 && length(var.aws_cloud_watch_logs_region) > 0 && length(var.aws_cloud_watch_logs_stream_prefix) > 0 ? {
@@ -71,43 +70,49 @@ data "aws_security_group" "hmz_trusted_components_sg" {
 
 # AWS Secrets Manager
 
-# resource "aws_secretsmanager_secret" "hmz_vault_oci_registry_credentials" {
-#   count = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? 1 : 0
-#   name  = "${local.pet_name}-hmz-vault-oci-registry-credentials"
-# }
+resource "aws_secretsmanager_secret" "hmz_vault_oci_registry_credentials" {
+  # count = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? 1 : 0
+  name = "${local.pet_name}-hmz-vault-oci-registry-credentials"
+}
 
-# resource "aws_secretsmanager_secret_version" "hmz_vault_oci_registry_credentials" {
-#   count     = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? 1 : 0
-#   secret_id = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.0.id
-#   secret_string = jsonencode({
-#     username = var.hmz_vault_container_registry_user,
-#     password = var.hmz_vault_container_registry_password
-#   })
-# }
+resource "aws_secretsmanager_secret_version" "hmz_vault_oci_registry_credentials" {
+  # count     = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? 1 : 0
+  # secret_id = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.0.id
+  secret_id = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.id
+  secret_string = jsonencode({
+    username = var.hmz_vault_container_registry_user,
+    password = var.hmz_vault_container_registry_password
+  })
+}
 
 data "aws_secretsmanager_secret" "hmz_vault_oci_registry_credentials" {
   # arn = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials
-  arn = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials
+  # arn = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials
+  arn = aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
 }
 
-# resource "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
-#   count = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? 1 : 0
-#   name  = "${local.pet_name}-hmz-kms-connect-for-vault-oci-registry-credentials"
-# }
+resource "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
+  # count = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? 1 : 0
+  name = "${local.pet_name}-hmz-kms-connect-for-vault-oci-registry-credentials"
+}
 
-# resource "aws_secretsmanager_secret_version" "hmz_kms_connect_oci_registry_credentials" {
-#   count     = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? 1 : 0
-#   secret_id = aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.id
-#   secret_string = jsonencode({
-#     username = var.hmz_kms_container_registry_user,
-#     password = var.hmz_kms_container_registry_password
-#   })
-# }
+resource "aws_secretsmanager_secret_version" "hmz_kms_connect_oci_registry_credentials" {
+  # count     = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? 1 : 0
+  # secret_id = aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.id
+  secret_id = aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.id
+  secret_string = jsonencode({
+    username = var.hmz_kms_container_registry_user,
+    password = var.hmz_kms_container_registry_password
+  })
+}
 
 data "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
   # arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
-  arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
+  # arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
+  arn = aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.arn
 }
+
+# AWS IAM
 
 resource "aws_iam_role" "ecs_execution_role" {
   name = "${local.pet_name}-ecs-execution-role-for-hmz-vault"
@@ -178,12 +183,7 @@ resource "aws_ecs_task_definition" "task" {
       repositoryCredentials = {
         credentialsParameter = data.aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.arn
       }
-      # user       = "root"
-      user       = "1001"
-      entryPoint = ["/bin/sh", "-c"]
-      command = [
-        "mkdir -p /opt/vault-core/cfg/ && echo 'trusted.sig += [HMZ_VAULT_TRUSTED_NOTARY_MESSAGING_PUBLIC_KEY]' > /opt/vault-core/cfg/vault.cfg && chmod 444 /opt/vault-core/cfg/vault.cfg && exec /opt/entrypoint.sh 2>&1 | /opt/also_to_syslog.sh"
-      ]
+      user = "1001"
       environment = [
         for key, value in local.hmz_vault_environment_variables : {
           name  = key

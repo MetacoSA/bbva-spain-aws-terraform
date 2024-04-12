@@ -1,6 +1,7 @@
 # Visual Studio Code
 .vscode/
 
+/tmp
 /temp
 /tests
 /test

@@ -20,9 +20,18 @@ locals {
     HMZ_NOTARY_COLS_DIR                     = var.hmz_notary_cols_dir
     HMZ_NOTARY_KMS_GRPC_KEEP_ALIVE_INTERVAL = var.hmz_notary_kms_grpc_keep_alive_interval
     HMZ_NOTARY_KMS_GRPC_KEEP_ALIVE_TIMEOUT  = var.hmz_notary_kms_grpc_keep_alive_timeout
-    HMZ_NOTARY_KMS_ENABLED                  = true
-    HMZ_NOTARY_KMS_HOST                     = "localhost"
-    HMZ_NOTARY_KMS_PORT                     = 10000
+
+    # Hardcoded values
+    HMZ_NOTARY_KMS_ENABLED      = true
+    HMZ_NOTARY_KMS_HOST         = "localhost"
+    HMZ_NOTARY_KMS_PORT         = 10000
+    HMZ_NOTARY_ALLOW_EMPTY_COLS = "false"
+
+    # HTTPS_PROXY_HOST     = ""
+    # HTTPS_PROXY_PORT     = "80"
+    # HTTPS_PROXY_USER     = "username"
+    # HTTPS_PROXY_PASSWORD = "test"
+    # JAVA_FLAGS           = "-Dhttp.proxyHost=20.208.39.162 -Dhttp.proxyPort=443 -Dhttp.proxyUser=username -Dhttp.proxyPassword=test"
     },
 
     fileexists(var.hmz_notary_state_manifest_file_path) ? { ANTI_REWIND_RECOVERY_STATE_MANIFEST = file(var.hmz_notary_state_manifest_file_path) } : {},
@@ -66,21 +75,21 @@ data "aws_security_group" "hmz_trusted_components_sg" {
 
 # AWS Secrets Manager
 
-# resource "aws_secretsmanager_secret" "hmz_notary_oci_registry_credentials" {
-#   name = "${local.pet_name}-hmz-notary-oci-registry-credentials"
-# }
+resource "aws_secretsmanager_secret" "hmz_notary_oci_registry_credentials" {
+  name = "${local.pet_name}-hmz-notary-oci-registry-credentials"
+}
 
-# resource "aws_secretsmanager_secret_version" "hmz_notary_oci_registry_credentials" {
-#   secret_id = aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.id
-#   secret_string = jsonencode({
-#     username = var.hmz_notary_container_registry_user,
-#     password = var.hmz_notary_container_registry_password
-#   })
-# }
+resource "aws_secretsmanager_secret_version" "hmz_notary_oci_registry_credentials" {
+  secret_id = aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.id
+  secret_string = jsonencode({
+    username = var.hmz_notary_container_registry_user,
+    password = var.hmz_notary_container_registry_password
+  })
+}
 
-# data "aws_secretsmanager_secret" "hmz_notary_oci_registry_credentials" {
-#   arn = aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.arn
-# }
+data "aws_secretsmanager_secret" "hmz_notary_oci_registry_credentials" {
+  arn = aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.arn
+}
 
 # resource "aws_secretsmanager_secret" "hmz_notary_oci_registry_credentials" {
 #   count = var.aws_secrets_manager_arn_for_hmz_notary_oci_registry_credentials == "" ? 1 : 0
@@ -96,9 +105,30 @@ data "aws_security_group" "hmz_trusted_components_sg" {
 #   })
 # }
 
-data "aws_secretsmanager_secret" "hmz_notary_oci_registry_credentials" {
-  # arn = var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_vault_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_vault_oci_registry_credentials
-  arn = var.aws_secrets_manager_arn_for_hmz_notary_oci_registry_credentials
+# data "aws_secretsmanager_secret" "hmz_notary_oci_registry_credentials" {
+#   arn = var.aws_secrets_manager_arn_for_hmz_notary_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_notary_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_notary_oci_registry_credentials
+#   # arn = var.aws_secrets_manager_arn_for_hmz_notary_oci_registry_credentials
+# }
+
+resource "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
+  # count = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? 1 : 0
+  name = "${local.pet_name}-hmz-kms-connect-for-notary-oci-registry-credentials"
+}
+
+resource "aws_secretsmanager_secret_version" "hmz_kms_connect_oci_registry_credentials" {
+  # count     = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? 1 : 0
+  # secret_id = aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.id
+  secret_id = aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.id
+  secret_string = jsonencode({
+    username = var.hmz_kms_container_registry_user,
+    password = var.hmz_kms_container_registry_password
+  })
+}
+
+data "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
+  # arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
+  # arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
+  arn = aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.arn
 }
 
 # resource "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
@@ -115,10 +145,12 @@ data "aws_secretsmanager_secret" "hmz_notary_oci_registry_credentials" {
 #   })
 # }
 
-data "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
-  # arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
-  arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
-}
+# data "aws_secretsmanager_secret" "hmz_kms_connect_oci_registry_credentials" {
+#   arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials == "" ? aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials.0.arn : var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
+#   # arn = var.aws_secrets_manager_arn_for_hmz_kms_connect_oci_registry_credentials
+# }
+
+# AWS IAM
 
 resource "aws_iam_role" "ecs_execution_role" {
   name = "${local.pet_name}-ecs-execution-role-for-hmz-notary"
@@ -255,6 +287,16 @@ resource "aws_ecs_task_definition" "task" {
       }
       user = "root"
       # user = "1001"
+      entryPoint = ["/bin/sh", "-c"]
+      command = [
+        <<-EOT
+          echo "Using Java Args $JAVA_FLAGS" && \
+            exec java $JAVA_FLAGS \
+            -javaagent:"$(readlink -f /opt/approval-notary/opentelemetry-javaagent/opentelemetry-javaagent-*.jar)" \
+            -classpath "/opt/approval-notary/conf/:/opt/approval-notary/lib/*" \
+            com.metaco.silo.approval.notary.NotaryService ;
+        EOT
+      ]
       environment = [
         for key, value in local.hmz_notary_environment_variables : {
           name  = key

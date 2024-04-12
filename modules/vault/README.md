@@ -28,6 +28,10 @@ No modules.
 | [aws_iam_role.ecs_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.ecs_execution_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.ecs_secrets_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
+| [aws_secretsmanager_secret.hmz_vault_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
+| [aws_secretsmanager_secret_version.hmz_kms_connect_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
+| [aws_secretsmanager_secret_version.hmz_vault_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [random_pet.random_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 | [aws_ecs_cluster.aws_ecs_cluster_for_hmz_trusted_components](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecs_cluster) | data source |
 | [aws_secretsmanager_secret.hmz_kms_connect_oci_registry_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
@@ -62,12 +66,14 @@ No modules.
 | <a name="input_hmz_vault_container_registry_user"></a> [hmz\_vault\_container\_registry\_user](#input\_hmz\_vault\_container\_registry\_user) | HMZ Vault Container Registry User | `string` | n/a | yes |
 | <a name="input_hmz_vault_feature_otlp_in_stdout"></a> [hmz\_vault\_feature\_otlp\_in\_stdout](#input\_hmz\_vault\_feature\_otlp\_in\_stdout) | HMZ Vault Environment Variable HMZ\_FEATURE\_OTLP\_IN\_STDOUT (Display logs in JSON format) | `bool` | `false` | no |
 | <a name="input_hmz_vault_harmonize_core_endpoint"></a> [hmz\_vault\_harmonize\_core\_endpoint](#input\_hmz\_vault\_harmonize\_core\_endpoint) | HMZ Vault Environment Variable HARMONIZE\_CORE\_ENDPOINT (Vault Core Endpoint) | `string` | n/a | yes |
+| <a name="input_hmz_vault_harmonize_core_no_proxy_address"></a> [hmz\_vault\_harmonize\_core\_no\_proxy\_address](#input\_hmz\_vault\_harmonize\_core\_no\_proxy\_address) | HMZ Vault Environment Variable HARMONIZE\_CORE\_NO\_PROXY\_ADDRESS | `string` | `""` | no |
+| <a name="input_hmz_vault_harmonize_core_proxy_address"></a> [hmz\_vault\_harmonize\_core\_proxy\_address](#input\_hmz\_vault\_harmonize\_core\_proxy\_address) | HMZ Vault Environment Variable HARMONIZE\_CORE\_PROXY\_ADDRESS | `string` | `""` | no |
 | <a name="input_hmz_vault_id"></a> [hmz\_vault\_id](#input\_hmz\_vault\_id) | UUID of the Vault (Environment Variable VAULT\_ID). | `string` | n/a | yes |
 | <a name="input_hmz_vault_log_level"></a> [hmz\_vault\_log\_level](#input\_hmz\_vault\_log\_level) | HMZ Vault Environment Variable VAULT\_LOGLEVEL | `number` | `6` | no |
 | <a name="input_hmz_vault_oci_image"></a> [hmz\_vault\_oci\_image](#input\_hmz\_vault\_oci\_image) | HMZ Vault Connect OCI Image | `string` | `"metaco.azurecr.io/harmonize/vault-releases"` | no |
 | <a name="input_hmz_vault_oci_tag"></a> [hmz\_vault\_oci\_tag](#input\_hmz\_vault\_oci\_tag) | HMZ Vault Connect OCI Tag | `string` | n/a | yes |
 | <a name="input_hmz_vault_optional_maximum_fee"></a> [hmz\_vault\_optional\_maximum\_fee](#input\_hmz\_vault\_optional\_maximum\_fee) | HMZ Vault Environment Variable HMZ\_OPTIONAL\_MAXIMUM\_FEE | `bool` | `false` | no |
-| <a name="input_hmz_vault_trusted_notary_messaging_public_key"></a> [hmz\_vault\_trusted\_notary\_messaging\_public\_key](#input\_hmz\_vault\_trusted\_notary\_messaging\_public\_key) | System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ\_VAULT\_TRUSTED\_NOTARY\_MESSAGING\_PUBLIC\_KEY, without the 'pem:' at the beginning). | `string` | `""` | no |
+| <a name="input_hmz_vault_trusted_notary_messaging_public_key"></a> [hmz\_vault\_trusted\_notary\_messaging\_public\_key](#input\_hmz\_vault\_trusted\_notary\_messaging\_public\_key) | System (Vault) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable VAULT\_TRUSTED\_SIG, without the 'pem:' at the beginning). | `string` | `""` | no |
 | <a name="input_random_pet"></a> [random\_pet](#input\_random\_pet) | Random Pet | `string` | `""` | no |
 
 ## Outputs

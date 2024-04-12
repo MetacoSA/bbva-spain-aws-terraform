@@ -424,7 +424,7 @@ variable "vaults" {
   }))
 
   default     = []
-  description = "List of Vault instances."
+  description = "List of Ripple Custody Vault instances."
 
   validation {
     condition     = length(var.vaults) == length(distinct([for vault in var.vaults : vault.hmz_vault_id]))
@@ -464,7 +464,7 @@ variable "hmz_vault_harmonize_core_endpoint" {
 variable "hmz_vault_trusted_notary_messaging_public_key" {
   type        = string
   default     = ""
-  description = "System (Notary) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable HMZ_VAULT_TRUSTED_NOTARY_MESSAGING_PUBLIC_KEY, without the 'pem:' at the beginning)."
+  description = "System (Notary) public key, which is listed as part of the first system event confirming the genesis execution (Environment Variable VAULT_TRUSTED_SIG, without the 'pem:' at the beginning)."
 
   validation {
     error_message = "Value must be empty or it must be a base64 encoded public key. Omit the the 'pem:' prefix"
@@ -472,5 +472,27 @@ variable "hmz_vault_trusted_notary_messaging_public_key" {
       length(var.hmz_vault_trusted_notary_messaging_public_key) == 0,
       !can(regex("^pem:", var.hmz_vault_trusted_notary_messaging_public_key)),
     ])
+  }
+}
+
+variable "hmz_vault_harmonize_core_proxy_address" {
+  type        = string
+  description = "HMZ Vault Environment Variable HARMONIZE_CORE_PROXY_ADDRESS"
+  default     = ""
+
+  validation {
+    condition     = var.hmz_vault_harmonize_core_proxy_address == "" || can(regex("^(http|https)://((?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,6}\\.?)|([0-9]{1,3}\\.){3}[0-9]{1,3})", var.hmz_vault_harmonize_core_proxy_address))
+    error_message = "The hmz_vault_http_proxy must be a valid hostname. http:// or https:// prefix is required."
+  }
+}
+
+variable "hmz_vault_harmonize_core_no_proxy_address" {
+  type        = string
+  description = "HMZ Vault Environment Variable HARMONIZE_CORE_NO_PROXY_ADDRESS"
+  default     = ""
+
+  validation {
+    condition     = var.hmz_vault_harmonize_core_no_proxy_address == "" || can(regex("^(http|https)://((?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,6}\\.?)|([0-9]{1,3}\\.){3}[0-9]{1,3})", var.hmz_vault_harmonize_core_no_proxy_address))
+    error_message = "The hmz_vault_no_proxy must be a valid hostname. http:// or https:// prefix is required."
   }
 }

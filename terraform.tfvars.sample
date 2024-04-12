@@ -34,4 +34,5 @@ vaults = [
 ]
 
 # HMZ KMS Connect Software Master Key (hexadecimal)
+Example: 79acc37afb7b2e0da4afb3a350ce49b73a24555431b0211dbf0bf93886c0fbff
 hmz_kms_connect_software_master_key = ""

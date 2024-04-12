@@ -20,3 +20,8 @@ anytrue
 hostnames
 fileexists
 terraformrc
+Dhttp
+javaagent
+classpath
+opentelemetry
+readlink
